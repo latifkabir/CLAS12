@@ -15,7 +15,7 @@ Instructions
 
 1. Download/clone the ```DataExplorer package```
 2. From your IDE export the package as new project.
-3. Add jars for ```CoatJava, Jackson, Clas12lib``` to your buildpath.
+3. Add jars for ```CoatJava, Jackson, Clas12lib``` to your build path.
 4. Modify the file ```src/*/Constants.java``` to set correct path for your system.
 
 
