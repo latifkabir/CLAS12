@@ -1,0 +1,20 @@
+[
+    {
+	"bank": "HitBasedTrkg::HBHits",
+	"group": 1311,
+	"info": "reconstructed hits using DC wire positions",
+	"items":[ 
+	    {"name":"id",          "id":1, "type":"int16",  "info":"id of the hit"},   
+	    {"name":"id",          "id":1, "type":"int16",  "info":"id of the hit 1"}
+	]
+    },
+    {
+	"bank": "HitBasedTrkg::HBHits",
+	"group": 1311,
+	"info": "reconstructed hits using DC wire positions",
+	"items": [
+	    {"name":"id",          "id":1, "type":"int16",  "info":"id of the hit"},   
+	    {"name":"id",          "id":1, "type":"int16",  "info":"id of the hit 2"}
+	]
+    }
+]

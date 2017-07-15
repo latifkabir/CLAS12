@@ -1,0 +1,907 @@
+package org.jlab.clas12.DataExplorer;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.io.PrintStream;
+
+import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.border.Border;
+
+import org.jlab.latif.clas12lib.Bank;
+import org.jlab.latif.clas12lib.ClasRecRun;
+import org.jlab.latif.clas12lib.DetectorDef;
+
+import com.sun.org.apache.regexp.internal.recompile;
+
+/**
+ * 
+ * @author Latif Kabir < jlab.org/~latif >
+ *
+ */
+
+public class DataExplorer
+{
+	private JFrame mainFrame;
+	private JLabel headerLabel;
+	private JLabel statusLabel;
+	private JPanel controlPanel;
+	private JPanel detControlPanel;
+	private JPanel xcontrolPanel;
+	private JPanel ycontrolPanel;
+	private JPanel runPanel;
+	private JPanel eventPanel;
+	private JPanel plotPanel;
+	private JPanel cutPanel;
+	private JPanel cutExpPanel;
+
+	private JPanel container;
+
+	private JTextArea textArea;
+	private PrintStream standardOut;	
+	private Thread plotterThread;
+	private boolean threadIsAlive = false;
+
+	ClasRecRun run = null;
+	String dataDir = Constants.DATA_DIR;
+	String runNumberStr;
+	String clasDetectorName = null;
+	Bank bankX;
+	Bank bankY;
+	Bank cut1Bank;
+	String bankXName;
+	String bankYName;
+	String cut1Name = "N/A";
+	String cut2Name = "N/A";
+	String cut3Name = "N/A";
+	String cut4Name = "N/A";
+	String cutExpStr = "N/A";
+	DetectorDef clasDetector;
+
+	int event = 0;
+
+	String xStr;
+	int xnBinsInt;
+	float xMinFloat;
+	float xMaxFloat;
+
+	String yStr;
+	int ynBinsInt;
+	float yMaxFloat;
+
+	boolean xReady = false;
+	float yMinFloat;
+	boolean yReady = false;
+	boolean bankReady = false;
+	boolean cutExpReady = false;
+	boolean selectionIsMade = false;
+
+	// ------ Constructor ------------------
+	public DataExplorer()
+	{
+		prepareGUI();
+	}
+
+	// ------------- Initialize required objects for
+	// GUI-------------------------------
+	private void prepareGUI()
+	{
+		// -------------------- The main frame -------------------------------
+		mainFrame = new JFrame("CLAS Data Explorer");
+		mainFrame.setSize(800, 700);
+		mainFrame.setLayout(new GridLayout(0, 1));
+
+		mainFrame.addWindowListener(new WindowAdapter()
+		{
+			public void windowClosing(WindowEvent windowEvent)
+			{
+				System.exit(0);
+			}
+		});
+
+		// ----------------- Header Label properties
+		// ------------------------------
+		headerLabel = new JLabel("", JLabel.CENTER);
+		statusLabel = new JLabel("", JLabel.CENTER);
+		statusLabel.setSize(350, 100);
+
+		// ---------------- The Panel (drop/down menu)-----------------------
+		detControlPanel = new JPanel();
+		detControlPanel.setLayout(new FlowLayout());
+
+		controlPanel = new JPanel();
+		controlPanel.setLayout(new FlowLayout());
+
+		xcontrolPanel = new JPanel();
+		xcontrolPanel.setLayout(new FlowLayout());
+
+		ycontrolPanel = new JPanel();
+		ycontrolPanel.setLayout(new FlowLayout());
+
+		plotPanel = new JPanel();
+		plotPanel.setLayout(new FlowLayout());
+
+		runPanel = new JPanel();
+		runPanel.setLayout(new FlowLayout());
+
+		eventPanel = new JPanel();
+		eventPanel.setLayout(new FlowLayout());
+
+		cutPanel = new JPanel();
+		cutPanel.setLayout(new FlowLayout());
+		
+		cutExpPanel = new JPanel();
+		cutExpPanel.setLayout(new FlowLayout());
+		
+		container = new JPanel();
+		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+	}
+
+	// --------- Title and Run selection area --------------------------
+	private void runArea()
+	{
+		headerLabel.setText("       CLAS Data Explorer       ");
+		headerLabel.setFont(new Font("Crystal", Font.PLAIN, 24));
+		Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
+		headerLabel.setBorder(border);
+
+		JLabel runlabel = new JLabel("Run #: ", JLabel.CENTER);
+		final JTextField runText = new JTextField(6);
+
+		JButton enterButton = new JButton("Enter");
+		enterButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				runNumberStr = runText.getText().replaceAll("\\s", "").replace(":", "_");
+				//String data = "Run: " + runText.getText();
+				// statusLabel.setText("Selected " + data);
+				run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
+				if (run.runExist())
+				{
+					System.out.println("\nSuccessfully Loaded run number: " + runNumberStr);
+					System.out.println("Total number of entries " + run.getEntries());
+				} else
+					System.out.println("\nThe requested run NOT found ");
+			}
+		});
+		runPanel.add(runlabel);
+		runPanel.add(runText);
+		runPanel.add(enterButton);
+
+		mainFrame.setVisible(true);
+	}
+
+	// ------------- Event Area -----------------------
+	private void eventArea()
+	{
+		JLabel eventLabel = new JLabel("Event #: ", JLabel.RIGHT);
+		final JTextField eventText = new JTextField(6);
+
+		JButton eventButton = new JButton("Get Info");
+		eventButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String data = "Event: " + eventText.getText().replaceAll("\\s", "");
+				// statusLabel.setText("Selected " + data);
+				try
+				{
+					int num1 = Integer.parseInt(eventText.getText().replaceAll("\\s", ""));
+				} catch (Exception e2)
+				{
+					System.out.println("\nIncomplete Field");
+					return;
+				}
+				event = Integer.parseInt(eventText.getText().replaceAll("\\s", ""));
+				if (run == null)
+				{
+					System.out.println("\nInvalid run number");
+					return;
+				}
+				if (run.runExist())
+					run.getEventInfo(event);
+				else
+					System.out.println("\nThe requested run NOT found ");
+			}
+		});
+		eventPanel.add(eventLabel);
+		eventPanel.add(eventText);
+		eventPanel.add(eventButton);
+
+		mainFrame.setVisible(true);
+	}
+
+	// ------------- Detector selection area ----------------------------------
+	private void detectorSelArea()
+	{
+		JLabel detLabel = new JLabel("Detector: ", JLabel.RIGHT);
+		final DefaultComboBoxModel detName = new DefaultComboBoxModel();
+
+		detName.addElement("CND");
+		detName.addElement("CVT");
+		detName.addElement("DATA");
+		detName.addElement("DC");
+
+		detName.addElement("DETECTOR");
+		detName.addElement("ECAL");
+		detName.addElement("EVENT");
+		detName.addElement("FT");
+		detName.addElement("HEADER");
+
+		detName.addElement("HTCC");
+		detName.addElement("LTCC");
+		detName.addElement("MC");
+		detName.addElement("SVT");
+		detName.addElement("TOF");
+
+		final JComboBox detCombo = new JComboBox(detName);
+		detCombo.setSelectedIndex(0);
+
+		JScrollPane detScrollPane = new JScrollPane(detCombo);
+		JButton showDetButton = new JButton("Enter");
+
+		showDetButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				if (detCombo.getSelectedIndex() != -1)
+				{
+					clasDetectorName = (String) detCombo.getItemAt(detCombo.getSelectedIndex());
+					if (run == null)
+					{
+						System.out.println("\nPlease enter a run number");
+						return;
+					}
+					if (run.runExist())
+					{
+						clasDetector = new DetectorDef(clasDetectorName);
+						System.out.println("Selected detector system: " + clasDetectorName);
+					} else
+					{
+						System.out.println("\nThe requested run NOT found ");
+						return;
+					}
+					bankSelArea();
+					xSelArea(null);
+					ySelArea(null);
+					xReady = false;
+					yReady = false;
+					bankReady = true;
+					cutExpReady = true;
+				}
+			}
+		});
+		detControlPanel.add(detLabel);
+		detControlPanel.add(detScrollPane);
+		detControlPanel.add(showDetButton);
+		mainFrame.setVisible(true);
+	}
+
+	// ------------- Bank selection area ----------------------------------
+	private void bankSelArea()
+	{
+		controlPanel.removeAll();
+		JLabel bankLabel = new JLabel("Bank: ", JLabel.RIGHT);
+		final DefaultComboBoxModel branchName = new DefaultComboBoxModel();
+
+		if (clasDetectorName == null)
+			branchName.addElement("Not Selected");
+		else
+		{
+			for (int i = 0; i < clasDetector.getBankList().length; i++)
+				branchName.addElement(clasDetector.getBankList()[i].getBank());
+		}
+		final JComboBox bankXCombo = new JComboBox(branchName);
+		bankXCombo.setSelectedIndex(0);
+
+		JScrollPane scrollPane = new JScrollPane(bankXCombo);
+		JButton showButton = new JButton("Enter");
+
+		showButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String data = "";
+				if (bankXCombo.getSelectedIndex() != -1)
+				{
+					if (clasDetectorName == null || !bankReady)
+					{
+						System.out.println("Complete all selection first.");
+						return;
+					}
+					bankXName = (String) bankXCombo.getItemAt(bankXCombo.getSelectedIndex());
+					bankX = clasDetector.getBank(bankXName);
+					data = "Bank Selected: " + bankXName;
+					if (run == null)
+					{
+						System.out.println("\nPlease enter a run number");
+						return;
+					}
+					if (run.runExist())
+						run.getBankInfo(bankXName, event);
+					else
+					{
+						System.out.println("\nThe requested run NOT found ");
+						return;
+					}
+
+					xSelArea(bankX);
+					ySelArea(bankX);
+					cutArea(bankX);
+					bankReady = true;
+				}
+			}
+		});
+		controlPanel.add(bankLabel);
+		controlPanel.add(scrollPane);
+		controlPanel.add(showButton);
+		controlPanel.updateUI();
+		mainFrame.setVisible(true);
+	}
+
+	// ------------- X and Y axis variable selection area
+	// ----------------------------------
+	private void xSelArea(Bank bSelected)
+	{
+		xcontrolPanel.removeAll();
+		xReady = false;
+
+		JLabel xLabel = new JLabel("X", JLabel.RIGHT);
+		final DefaultComboBoxModel xName = new DefaultComboBoxModel();
+
+		if (bSelected == null)
+			xName.addElement("N/A");
+		else
+		{
+			for (int i = 0; i < bSelected.getItems().size(); i++)
+				xName.addElement(bSelected.getItems().get(i).getName());
+		}
+
+		final JComboBox xCombo = new JComboBox(xName);
+		xCombo.setSelectedIndex(0);
+
+		JScrollPane scrollPane = new JScrollPane(xCombo);
+		JButton showButton = new JButton("Set");
+
+		JLabel nBins = new JLabel("nBins: ", JLabel.RIGHT);
+		JLabel Max = new JLabel("xMax : ", JLabel.CENTER);
+		JLabel Min = new JLabel("xMin : ", JLabel.CENTER);
+		final JTextField nBinsText = new JTextField(6);
+		final JTextField MaxText = new JTextField(6);
+		final JTextField MinText = new JTextField(6);
+
+		xcontrolPanel.add(xLabel);
+		xcontrolPanel.add(scrollPane);
+		xcontrolPanel.add(nBins);
+		xcontrolPanel.add(nBinsText);
+		xcontrolPanel.add(Min);
+		xcontrolPanel.add(MinText);
+		xcontrolPanel.add(Max);
+		xcontrolPanel.add(MaxText);
+		xcontrolPanel.add(showButton);
+		xcontrolPanel.updateUI();
+		mainFrame.setVisible(true);
+
+		showButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				if (xCombo.getSelectedIndex() != -1)
+				{
+					xStr = (String) xCombo.getItemAt(xCombo.getSelectedIndex());
+					if (xStr == "N/A")
+					{
+						System.out.println("\n This option NOT available right now");
+						return;
+					}
+
+					try
+					{
+						int num1 = Integer.parseInt(nBinsText.getText().replaceAll("\\s", ""));
+						float num2 = Float.parseFloat(MinText.getText().replaceAll("\\s", ""));
+						float num3 = Float.parseFloat(MaxText.getText().replaceAll("\\s", ""));
+					} catch (Exception e2)
+					{
+						System.out.println("Incomplete Field");
+						return;
+					}
+					xnBinsInt = Integer.parseInt(nBinsText.getText().replaceAll("\\s", ""));
+					xMinFloat = Float.parseFloat(MinText.getText().replaceAll("\\s", ""));
+					xMaxFloat = Float.parseFloat(MaxText.getText().replaceAll("\\s", ""));
+
+					System.out.println("\nFor " + xStr + " set");
+					System.out.println(" nBins: " + xnBinsInt);
+					System.out.println("xMin: " + xMinFloat);
+					System.out.println("xMax: " + xMaxFloat);
+
+					xReady = true;
+				}
+			}
+		});
+
+	}
+
+	private void ySelArea(Bank bSelected)
+	{
+		ycontrolPanel.removeAll();
+		yReady = false;
+
+		JLabel yLabel = new JLabel("Y", JLabel.RIGHT);
+		final DefaultComboBoxModel yName = new DefaultComboBoxModel();
+
+		if (bSelected == null)
+			yName.addElement("N/A");
+		else
+		{
+			for (int i = 0; i < bSelected.getItems().size(); i++)
+				yName.addElement(bSelected.getItems().get(i).getName());
+		}
+
+		final JComboBox yCombo = new JComboBox(yName);
+		yCombo.setSelectedIndex(0);
+
+		JScrollPane scrollPane = new JScrollPane(yCombo);
+		JButton showButton = new JButton("Set");
+
+		JLabel nBins = new JLabel("nBins: ", JLabel.RIGHT);
+		JLabel Max = new JLabel("yMax : ", JLabel.CENTER);
+		JLabel Min = new JLabel("yMin : ", JLabel.CENTER);
+		final JTextField nBinsText = new JTextField(6);
+		final JTextField MaxText = new JTextField(6);
+		final JTextField MinText = new JTextField(6);
+
+		ycontrolPanel.add(yLabel);
+		ycontrolPanel.add(scrollPane);
+		ycontrolPanel.add(nBins);
+		ycontrolPanel.add(nBinsText);
+		ycontrolPanel.add(Min);
+		ycontrolPanel.add(MinText);
+		ycontrolPanel.add(Max);
+		ycontrolPanel.add(MaxText);
+		ycontrolPanel.add(showButton);
+		ycontrolPanel.updateUI();
+		mainFrame.setVisible(true);
+
+		showButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				if (yCombo.getSelectedIndex() != -1)
+				{
+					yStr = (String) yCombo.getItemAt(yCombo.getSelectedIndex());
+					if (yStr == "N/A")
+					{
+						System.out.println("\n This option NOT available right now");
+						return;
+					}
+
+					try
+					{
+						int num1 = Integer.parseInt(nBinsText.getText());
+						float num2 = Float.parseFloat(MinText.getText());
+						float num3 = Float.parseFloat(MaxText.getText());
+					} catch (Exception e2)
+					{
+						System.out.println("Incomplete Field");
+						return;
+					}
+					ynBinsInt = Integer.parseInt(nBinsText.getText().replaceAll("\\s", ""));
+					yMinFloat = Float.parseFloat(MinText.getText().replaceAll("\\s", ""));
+					yMaxFloat = Float.parseFloat(MaxText.getText().replaceAll("\\s", ""));
+
+					System.out.println("\nFor " + yStr + " set");
+					System.out.println(" nBins: " + ynBinsInt);
+					System.out.println("yMin: " + yMinFloat);
+					System.out.println("yMax: " + yMaxFloat);
+
+					yReady = true;
+				}
+			}
+		});
+
+	}
+
+	private void cutArea(Bank selBank)
+	{
+		cutPanel.removeAll();
+
+		// -------------- Cut1 selection box -----------------------
+		JLabel cut1Label = new JLabel("Sel:: a", JLabel.RIGHT);
+		final DefaultComboBoxModel cut1Box = new DefaultComboBoxModel();
+
+		if (selBank == null)
+			cut1Box.addElement("N/A");
+		else
+		{
+			cut1Box.addElement("N/A");
+			for (int i = 0; i < selBank.getItems().size(); i++)
+				cut1Box.addElement(selBank.getItems().get(i).getName());
+		}
+
+		final JComboBox cut1Combo = new JComboBox(cut1Box);
+		cut1Combo.setSelectedIndex(0);
+
+		JScrollPane cut1ScrollPane = new JScrollPane(cut1Combo);
+
+		// -------------- Cut2 selection box -----------------------
+		JLabel cut2Label = new JLabel("b", JLabel.RIGHT);
+		final DefaultComboBoxModel cut2Box = new DefaultComboBoxModel();
+
+		if (selBank == null)
+			cut2Box.addElement("N/A");
+		else
+		{
+			cut2Box.addElement("N/A");
+			for (int i = 0; i < selBank.getItems().size(); i++)
+				cut2Box.addElement(selBank.getItems().get(i).getName());
+		}
+
+		final JComboBox cut2Combo = new JComboBox(cut2Box);
+		cut1Combo.setSelectedIndex(0);
+
+		JScrollPane cut2ScrollPane = new JScrollPane(cut2Combo);
+
+		// -------------- Cut3 selection box -----------------------
+		JLabel cut3Label = new JLabel("c", JLabel.RIGHT);
+		final DefaultComboBoxModel cut3Box = new DefaultComboBoxModel();
+
+		if (selBank == null)
+			cut3Box.addElement("N/A");
+		else
+		{
+			cut3Box.addElement("N/A");
+			for (int i = 0; i < selBank.getItems().size(); i++)
+				cut3Box.addElement(selBank.getItems().get(i).getName());
+		}
+
+		final JComboBox cut3Combo = new JComboBox(cut3Box);
+		cut1Combo.setSelectedIndex(0);
+
+		JScrollPane cut3ScrollPane = new JScrollPane(cut3Combo);
+
+		// -------------- Cut4 selection box -----------------------
+		JLabel cut4Label = new JLabel("d", JLabel.RIGHT);
+		final DefaultComboBoxModel cut4Box = new DefaultComboBoxModel();
+
+		if (selBank == null)
+			cut4Box.addElement("N/A");
+		else
+		{
+			cut4Box.addElement("N/A");
+			for (int i = 0; i < selBank.getItems().size(); i++)
+				cut4Box.addElement(selBank.getItems().get(i).getName());
+		}
+
+		final JComboBox cut4Combo = new JComboBox(cut4Box);
+		cut1Combo.setSelectedIndex(0);
+
+		JScrollPane cut4ScrollPane = new JScrollPane(cut4Combo);
+
+		JButton showCutButton = new JButton("Enter");
+
+		showCutButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String data = "";
+				if (cut1Combo.getSelectedIndex() != -1)
+				{
+					if (clasDetectorName == null || !bankReady)
+					{
+						System.out.println("Complete all selection first.");
+						return;
+					}
+					cut1Name = (String) cut1Combo.getItemAt(cut1Combo.getSelectedIndex());
+					cut2Name = (String) cut2Combo.getItemAt(cut2Combo.getSelectedIndex());
+					cut3Name = (String) cut3Combo.getItemAt(cut3Combo.getSelectedIndex());
+					cut4Name = (String) cut4Combo.getItemAt(cut4Combo.getSelectedIndex());
+
+					if (run == null)
+					{
+						System.out.println("\nPlease enter a run number");
+						return;
+					}
+					if (run.runExist())
+					{
+						System.out.println("Seleted cuts are:");
+						System.out.println("Cut1 variable:" + cut1Name);
+						System.out.println("Cut2 variable:" + cut2Name);
+						System.out.println("Cut3 variable:" + cut3Name);
+						System.out.println("Cut4 variable:" + cut4Name);
+						selectionIsMade = true;
+					} else
+					{
+						System.out.println("\nThe requested run NOT found ");
+						return;
+					}
+				}
+			}
+		});
+		cutPanel.add(cut1Label);
+		cutPanel.add(cut1ScrollPane);
+		cutPanel.add(cut2Label);
+		cutPanel.add(cut2ScrollPane);
+		cutPanel.add(cut3Label);
+		cutPanel.add(cut3ScrollPane);
+		cutPanel.add(cut4Label);
+		cutPanel.add(cut4ScrollPane);
+		cutPanel.add(showCutButton);
+		cutPanel.updateUI();
+		mainFrame.setVisible(true);
+	}
+
+	// --------- Cut expression area --------------------------
+	private void cutExpArea()
+	{
+		JLabel expLabel = new JLabel("Expression: ", JLabel.CENTER);
+		final JTextField expText = new JTextField(20);
+
+		JButton enterExpButton = new JButton("Enter");
+		enterExpButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				cutExpStr = expText.getText();
+				if (cutExpReady && selectionIsMade)
+				{
+					System.out.println("Selection entered: " + cutExpStr);					
+				} else
+					System.out.println("\nMake other selections first.");
+			}
+		});
+		cutExpPanel.add(expLabel);
+		cutExpPanel.add(expText);
+		cutExpPanel.add(enterExpButton);
+
+		mainFrame.setVisible(true);
+	}
+
+
+	// --------------------- Text Area --------------------------
+	private void textArea()
+	{
+		// -------------- The text area -------------------------------
+		textArea = new JTextArea(40, 80);
+		textArea.setEditable(false);
+
+		PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
+
+		// keeps reference of standard output stream
+		standardOut = System.out;
+
+		// re-assigns standard output stream and error output stream
+		System.setOut(printStream);
+		System.setErr(printStream);
+	}
+
+	private void makePlot()
+	{
+		JButton plotXButton = new JButton("Plot X 1D");
+		plotXButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				if (!xReady)
+				{
+					System.out.println("\nInvalid value entered");
+					return;
+				}
+				if(threadIsAlive)
+				{
+					System.out.println("\n!!!! You must wait until current filling  is done !!!\n");
+					return;
+				}
+				run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
+				if (run.runExist())
+				{
+					threadIsAlive = true;
+					plotterThread = new Thread(new Runnable()
+					{
+						public void run()
+						{
+							if (cutExpStr.equals("") || cutExpStr.equals("N/A") || !selectionIsMade)
+							{
+								System.out.println("\nFilling the histogram ....");
+								new RunExplorer().make1DPlot(run, clasDetectorName, bankXName, xStr, xnBinsInt,
+										xMinFloat,
+										xMaxFloat);
+							}
+							else
+							{
+								System.out.println("\nFilling the histogram with cut selected....");
+								new RunExplorer().make1DPlotCut(run, clasDetectorName, bankXName, xStr, cut1Name,
+										cut2Name, cut3Name, cut4Name, cutExpStr, xnBinsInt, xMinFloat,
+										xMaxFloat);
+							}
+							System.out.println("\nDone with the histogram!");
+							threadIsAlive = false;
+						}
+					});
+					plotterThread.start();
+				}
+				else
+					System.out.println("\nThe requested run NOT found.");
+			}
+		});
+
+		JButton plotYButton = new JButton("Plot Y 1D");
+		plotYButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				if (!yReady)
+				{
+					System.out.println("\nInvalid value entered");
+					return;
+				}
+				if(threadIsAlive)
+				{
+					System.out.println("\n!!!! You must wait until current filling  is done !!!\n");
+					return;
+				}
+				run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
+				if (run.runExist())
+				{
+					threadIsAlive = true;
+					plotterThread = new Thread(new Runnable()
+					{
+						public void run()
+						{
+							if (cutExpStr.equals("") || cutExpStr.equals("N/A") || !selectionIsMade)
+							{
+								System.out.println("\nFilling the histogram ....");
+								new RunExplorer().make1DPlot(run, clasDetectorName, bankXName, yStr, ynBinsInt,
+										yMinFloat,
+										yMaxFloat);
+							}
+							else
+							{
+								System.out.println("\nFilling the histogram with cut selected....");
+								new RunExplorer().make1DPlotCut(run, clasDetectorName, bankXName, yStr, cut1Name,
+										cut2Name, cut3Name, cut4Name, cutExpStr, ynBinsInt, yMinFloat,
+										yMaxFloat);
+							}
+							System.out.println("\nDone with the histogram!");
+							threadIsAlive = false;
+						}
+					});
+					plotterThread.start();
+				}
+				else
+					System.out.println("\nThe requested run NOT found.");
+			}
+		});
+
+		JButton plotXYButton = new JButton("Plot XY 2D");
+		plotXYButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				if (!xReady || !yReady)
+				{
+					System.out.println("\nInvalid value entered");
+					return;
+				}
+				if(threadIsAlive)
+				{
+					System.out.println("\n!!!! You must wait until current filling  is done !!!\n");
+					return;
+				}
+
+				run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
+				if (run.runExist())
+				{
+					threadIsAlive = true;
+					plotterThread = new Thread(new Runnable()
+					{
+						public void run()
+						{
+
+							if (cutExpStr.equals("") || cutExpStr.equals("N/A") || !selectionIsMade)
+							{
+								System.out.println("\nFilling the histogram ....");
+								new RunExplorer().make2DPlot(run, clasDetectorName, bankXName, xStr, yStr, xnBinsInt,
+										xMinFloat,
+										xMaxFloat, ynBinsInt, yMinFloat, yMaxFloat);
+							}
+							else
+							{
+								System.out.println("\nFilling the histogram with cut selected ....");
+								new RunExplorer().make2DPlotCut(run, clasDetectorName, bankXName, xStr, yStr, cut1Name,
+										cut2Name, cut3Name, cut4Name, cutExpStr, xnBinsInt, xMinFloat,
+										xMaxFloat, ynBinsInt, yMinFloat, yMaxFloat);
+							}
+
+							System.out.println("\nDone with the histogram!");
+							threadIsAlive = false;
+						}
+					});
+					plotterThread.start();
+				}
+				else
+					System.out.println("\nThe requested run NOT found.");
+			}
+		});
+
+		plotPanel.add(plotXButton);
+		plotPanel.add(plotYButton);
+		plotPanel.add(plotXYButton);
+		mainFrame.setVisible(true);
+	}
+
+	// -------------------- Combine all the panels with the main frame --------------------
+	private void combineComponents()
+	{
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		constraints.insets = new Insets(10, 10, 10, 10);
+		constraints.anchor = GridBagConstraints.WEST;
+
+		constraints.gridx = 1;
+		constraints.gridwidth = 2;
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.weightx = 1.0;
+		constraints.weighty = 1.0;
+
+		// ------------------ Add all the button/box/text area components to the frame------------
+		container.add(headerLabel);
+		container.add(runPanel);
+		container.add(eventPanel);
+		container.add(detControlPanel);
+		container.add(controlPanel);
+		container.add(xcontrolPanel);
+		container.add(ycontrolPanel);
+		container.add(cutPanel);
+		container.add(cutExpPanel);
+		container.add(plotPanel);
+		container.add(statusLabel);
+		container.add(textArea);
+		container.add(new JScrollPane(textArea), constraints);
+
+		mainFrame.add(container);
+		// mainFrame.pack();
+		mainFrame.setVisible(true);
+
+		System.out.println(
+				"\t\t----------------------------------------------------------------------------------------------------");
+		System.out.println("\t\t\tWelcome to CLAS Data Explorer");
+		System.out.println(
+				"\t\t----------------------------------------------------------------------------------------------------");
+	}
+
+	// ----------------- Call to Analysis To Explore----------------
+	private void Explorer()
+	{
+
+		System.out.println("\nFor X set");
+		System.out.println(" nBins: " + xnBinsInt);
+		System.out.println(" xMin: " + xMinFloat);
+		System.out.println(" xMax: " + xMaxFloat);
+
+		System.out.println("\nFor Y set");
+		System.out.println(" nBins: " + ynBinsInt);
+		System.out.println(" yMin: " + yMinFloat);
+		System.out.println(" yMax: " + yMaxFloat);
+
+	}
+
+	// ------------ The main function -------------------
+	public static void main(String[] args)
+	{
+		DataExplorer explorer = new DataExplorer();
+		explorer.runArea();
+		explorer.eventArea();
+		explorer.detectorSelArea();
+		explorer.bankSelArea();
+		explorer.xSelArea(null);
+		explorer.ySelArea(null);
+		explorer.cutArea(null);
+		explorer.cutExpArea();
+		explorer.makePlot();
+		explorer.textArea();
+		explorer.combineComponents();
+	}
+}
