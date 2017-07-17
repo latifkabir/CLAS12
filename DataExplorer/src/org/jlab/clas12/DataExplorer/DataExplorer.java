@@ -954,6 +954,17 @@ public class DataExplorer
 		System.out.println("\t\t\t\t\tWelcome to CLAS Data Explorer");
 		System.out.println(
 				"\t\t-----------------------------------------------------------------------------");
+		System.out.println("\n\n\tGeneral Instructions:");
+		System.out.println("\t----------------------");
+		System.out.println("\n\t1. The default data path is set to kpp pass5 cooked data. Change the path "
+				+ " if you want to explore other data. \n\t   Note the file prefix included in the path.");
+		System.out.println("\n\t2. Enter the run number in the following format: \"runNumber:fileNumber\", for kpp "
+				+ "data these two numbers \n\t   need to be in three digits format. An example is 810:010");
+		System.out.println("\n\t3. The bank menu and menu for variables are dynamic. It will get "
+				+ "updated based on parent selection.");
+		System.out.println("\n\t4.  To select cut, use logical expressions in terms of a,b,c,d."
+				+ " An example is a==2 && b==1");
+		System.out.println("\n\t -----------------------------------------------------------------------------------");
 	}
 
 	// ----------------- Call to Analysis To Explore----------------

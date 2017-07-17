@@ -11,9 +11,9 @@ Features
  - Apply cut using up to four variables.
 
 
-Give it a try before you download
------------------------------------
-You can give it a try from ifram by issuing the following command:
+Running on JLAB ifarm
+---------------------
+You can run the pre-compiled compiled jar from ```ifram``` by issuing the following command (assuming you ssh with -Y option):
 ```
 java -jar /volatile/clas12/latif/DataExplorer.jar
 ```
