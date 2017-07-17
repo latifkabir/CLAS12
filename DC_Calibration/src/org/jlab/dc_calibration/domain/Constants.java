@@ -13,7 +13,6 @@
 package org.jlab.dc_calibration.domain;
 
 public final class Constants {
-
 	protected static final double rad2deg = 180.0 / Math.PI;
 	protected static final double deg2rad = Math.PI / 180.0;
 
