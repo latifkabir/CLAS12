@@ -9,11 +9,9 @@ import javax.swing.*;
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
-import org.jlab.latif.clas12lib.Bank;
-import org.jlab.latif.clas12lib.ClasRecRun;
-import org.jlab.latif.clas12lib.DetectorDef;
-
-import com.sun.org.apache.regexp.internal.recompile;
+import org.jlab.latif.clas12lib.core.Bank;
+import org.jlab.latif.clas12lib.core.ClasRecRun;
+import org.jlab.latif.clas12lib.core.DetectorDef;
 
 /**
  * 
@@ -30,6 +28,7 @@ public class DataExplorer
 	private JPanel detControlPanel;
 	private JPanel xcontrolPanel;
 	private JPanel ycontrolPanel;
+	private JPanel pathPanel;
 	private JPanel runPanel;
 	private JPanel eventPanel;
 	private JPanel plotPanel;
@@ -40,7 +39,7 @@ public class DataExplorer
 
 	private JTextArea textArea;
 	private PrintStream standardOut;	
-	private Thread plotterThread;
+	private Thread explorerThread;
 	private boolean threadIsAlive = false;
 
 	ClasRecRun run = null;
@@ -85,7 +84,7 @@ public class DataExplorer
 
 	// ------------- Initialize required objects for
 	// GUI-------------------------------
-	private void prepareGUI()
+	public void prepareGUI()
 	{
 		// -------------------- The main frame -------------------------------
 		mainFrame = new JFrame("CLAS Data Explorer");
@@ -107,6 +106,9 @@ public class DataExplorer
 		statusLabel.setSize(350, 100);
 
 		// ---------------- The Panel (drop/down menu)-----------------------
+		pathPanel = new JPanel();
+		pathPanel.setLayout(new FlowLayout());
+
 		detControlPanel = new JPanel();
 		detControlPanel.setLayout(new FlowLayout());
 
@@ -138,35 +140,70 @@ public class DataExplorer
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
 	}
 
-	// --------- Title and Run selection area --------------------------
-	private void runArea()
+	//---------------------- Title and path area ----------------------------
+	public void pathArea()
 	{
 		headerLabel.setText("       CLAS Data Explorer       ");
 		headerLabel.setFont(new Font("Crystal", Font.PLAIN, 24));
 		Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
 		headerLabel.setBorder(border);
 
-		JLabel runlabel = new JLabel("Run #: ", JLabel.CENTER);
+		JLabel pathLabel = new JLabel("Path with file prefix: ", JLabel.CENTER);
+		final JTextField pathText = new JTextField(Constants.DATA_DIR,25);
+		JButton setPathButton = new JButton("Set");
+	
+		setPathButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				dataDir = pathText.getText().replaceAll("\\s", "");
+				System.out.println("\n Changed the default data path with file prefix to: "+ dataDir);
+			}
+		});
+		
+		pathPanel.add(pathLabel);
+		pathPanel.add(pathText);
+		pathPanel.add(setPathButton);					
+	}
+	
+	// --------- Title and Run selection area --------------------------
+	public void runArea()
+	{				
+		JLabel runLabel = new JLabel("Run #: ", JLabel.CENTER);
 		final JTextField runText = new JTextField(6);
-
 		JButton enterButton = new JButton("Enter");
+		
 		enterButton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				runNumberStr = runText.getText().replaceAll("\\s", "").replace(":", "_");
-				//String data = "Run: " + runText.getText();
-				// statusLabel.setText("Selected " + data);
-				run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
-				if (run.runExist())
+				runNumberStr = runText.getText().replaceAll("\\s", "").replace(":", Constants.FILE_INNER_FIX);
+				if(threadIsAlive)
 				{
-					System.out.println("\nSuccessfully Loaded run number: " + runNumberStr);
-					System.out.println("Total number of entries " + run.getEntries());
-				} else
-					System.out.println("\nThe requested run NOT found ");
+					System.out.println("\n !!!! You must wait until current request is finished !!!\n");
+					return;
+				}
+				threadIsAlive = true;
+				explorerThread = new Thread(new Runnable()
+				{
+					public void run()
+					{
+						run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
+						if (run.runExist())
+						{
+							System.out.println("\n Successfully Loaded run number: " + runNumberStr);
+							System.out.println("\n Total number of entries " + run.getEntries());
+						}
+						else
+							System.out.println("\n The requested run NOT found ");
+						threadIsAlive = false;
+					}
+				});
+				explorerThread.start();
 			}
 		});
-		runPanel.add(runlabel);
+
+		runPanel.add(runLabel);
 		runPanel.add(runText);
 		runPanel.add(enterButton);
 
@@ -174,7 +211,7 @@ public class DataExplorer
 	}
 
 	// ------------- Event Area -----------------------
-	private void eventArea()
+	public void eventArea()
 	{
 		JLabel eventLabel = new JLabel("Event #: ", JLabel.RIGHT);
 		final JTextField eventText = new JTextField(6);
@@ -191,19 +228,33 @@ public class DataExplorer
 					int num1 = Integer.parseInt(eventText.getText().replaceAll("\\s", ""));
 				} catch (Exception e2)
 				{
-					System.out.println("\nIncomplete Field");
+					System.out.println("\n Incomplete Field");
 					return;
 				}
 				event = Integer.parseInt(eventText.getText().replaceAll("\\s", ""));
 				if (run == null)
 				{
-					System.out.println("\nInvalid run number");
+					System.out.println("\n Invalid run number");
 					return;
 				}
-				if (run.runExist())
-					run.getEventInfo(event);
-				else
-					System.out.println("\nThe requested run NOT found ");
+				if(threadIsAlive)
+				{
+					System.out.println("\n !!!! You must wait until current request is finished !!!\n");
+					return;
+				}
+				threadIsAlive = true;
+				explorerThread = new Thread(new Runnable()
+				{
+					public void run()
+					{
+						if (run.runExist())
+							run.getEventInfo(event);
+						else
+							System.out.println("\n The requested run NOT found ");
+						threadIsAlive = false;
+					}
+				});
+				explorerThread.start();
 			}
 		});
 		eventPanel.add(eventLabel);
@@ -214,7 +265,7 @@ public class DataExplorer
 	}
 
 	// ------------- Detector selection area ----------------------------------
-	private void detectorSelArea()
+	public void detectorSelArea()
 	{
 		JLabel detLabel = new JLabel("Detector: ", JLabel.RIGHT);
 		final DefaultComboBoxModel detName = new DefaultComboBoxModel();
@@ -251,25 +302,41 @@ public class DataExplorer
 					clasDetectorName = (String) detCombo.getItemAt(detCombo.getSelectedIndex());
 					if (run == null)
 					{
-						System.out.println("\nPlease enter a run number");
+						System.out.println("\n Please enter a run number");
 						return;
 					}
-					if (run.runExist())
+					if (threadIsAlive)
 					{
-						clasDetector = new DetectorDef(clasDetectorName);
-						System.out.println("Selected detector system: " + clasDetectorName);
-					} else
-					{
-						System.out.println("\nThe requested run NOT found ");
+						System.out.println("\n !!!! You must wait until current request is finished !!!\n");
 						return;
 					}
-					bankSelArea();
-					xSelArea(null);
-					ySelArea(null);
-					xReady = false;
-					yReady = false;
-					bankReady = true;
-					cutExpReady = true;
+					threadIsAlive = true;
+					explorerThread = new Thread(new Runnable()
+					{
+						public void run()
+						{
+
+							if (run.runExist())
+							{
+								clasDetector = new DetectorDef(clasDetectorName);
+								System.out.println("\n Selected detector system: " + clasDetectorName);
+							}
+							else
+							{
+								System.out.println("\n The requested run NOT found ");
+								return;
+							}
+							bankSelArea();
+							xSelArea(null);
+							ySelArea(null);
+							xReady = false;
+							yReady = false;
+							bankReady = true;
+							cutExpReady = true;
+							threadIsAlive = false;
+						}
+					});
+					explorerThread.start();
 				}
 			}
 		});
@@ -280,7 +347,7 @@ public class DataExplorer
 	}
 
 	// ------------- Bank selection area ----------------------------------
-	private void bankSelArea()
+	public void bankSelArea()
 	{
 		controlPanel.removeAll();
 		JLabel bankLabel = new JLabel("Bank: ", JLabel.RIGHT);
@@ -308,29 +375,45 @@ public class DataExplorer
 				{
 					if (clasDetectorName == null || !bankReady)
 					{
-						System.out.println("Complete all selection first.");
+						System.out.println("\n Complete all selections first.");
 						return;
 					}
-					bankXName = (String) bankXCombo.getItemAt(bankXCombo.getSelectedIndex());
-					bankX = clasDetector.getBank(bankXName);
-					data = "Bank Selected: " + bankXName;
-					if (run == null)
+					if (threadIsAlive)
 					{
-						System.out.println("\nPlease enter a run number");
+						System.out.println("\n !!!! You must wait until current request is finished !!!\n");
 						return;
 					}
-					if (run.runExist())
-						run.getBankInfo(bankXName, event);
-					else
+					threadIsAlive = true;
+					explorerThread = new Thread(new Runnable()
 					{
-						System.out.println("\nThe requested run NOT found ");
-						return;
-					}
+						public void run()
+						{
 
-					xSelArea(bankX);
-					ySelArea(bankX);
-					cutArea(bankX);
-					bankReady = true;
+							bankXName = (String) bankXCombo.getItemAt(bankXCombo.getSelectedIndex());
+							bankX = clasDetector.getBank(bankXName);
+							//data = "Bank Selected: " + bankXName;
+							if (run == null)
+							{
+								System.out.println("\n Please enter a run number");
+								return;
+							}
+							if (run.runExist())
+								run.getBankInfo(bankXName, event);
+							else
+							{
+								System.out.println("\n The requested run NOT found ");
+								return;
+							}
+
+							xSelArea(bankX);
+							ySelArea(bankX);
+							cutArea(bankX);
+							bankReady = true;
+							threadIsAlive = false;
+						}
+					});
+					explorerThread.start();
+
 				}
 			}
 		});
@@ -343,7 +426,7 @@ public class DataExplorer
 
 	// ------------- X and Y axis variable selection area
 	// ----------------------------------
-	private void xSelArea(Bank bSelected)
+	public void xSelArea(Bank bSelected)
 	{
 		xcontrolPanel.removeAll();
 		xReady = false;
@@ -404,17 +487,17 @@ public class DataExplorer
 						float num3 = Float.parseFloat(MaxText.getText().replaceAll("\\s", ""));
 					} catch (Exception e2)
 					{
-						System.out.println("Incomplete Field");
+						System.out.println("\n Incomplete Field");
 						return;
 					}
 					xnBinsInt = Integer.parseInt(nBinsText.getText().replaceAll("\\s", ""));
 					xMinFloat = Float.parseFloat(MinText.getText().replaceAll("\\s", ""));
 					xMaxFloat = Float.parseFloat(MaxText.getText().replaceAll("\\s", ""));
 
-					System.out.println("\nFor " + xStr + " set");
+					System.out.println("\n For " + xStr + " set");
 					System.out.println(" nBins: " + xnBinsInt);
-					System.out.println("xMin: " + xMinFloat);
-					System.out.println("xMax: " + xMaxFloat);
+					System.out.println(" xMin: " + xMinFloat);
+					System.out.println(" xMax: " + xMaxFloat);
 
 					xReady = true;
 				}
@@ -423,7 +506,7 @@ public class DataExplorer
 
 	}
 
-	private void ySelArea(Bank bSelected)
+	public void ySelArea(Bank bSelected)
 	{
 		ycontrolPanel.removeAll();
 		yReady = false;
@@ -484,17 +567,17 @@ public class DataExplorer
 						float num3 = Float.parseFloat(MaxText.getText());
 					} catch (Exception e2)
 					{
-						System.out.println("Incomplete Field");
+						System.out.println("\n Incomplete Field");
 						return;
 					}
 					ynBinsInt = Integer.parseInt(nBinsText.getText().replaceAll("\\s", ""));
 					yMinFloat = Float.parseFloat(MinText.getText().replaceAll("\\s", ""));
 					yMaxFloat = Float.parseFloat(MaxText.getText().replaceAll("\\s", ""));
 
-					System.out.println("\nFor " + yStr + " set");
+					System.out.println("\n For " + yStr + " set");
 					System.out.println(" nBins: " + ynBinsInt);
-					System.out.println("yMin: " + yMinFloat);
-					System.out.println("yMax: " + yMaxFloat);
+					System.out.println(" yMin: " + yMinFloat);
+					System.out.println(" yMax: " + yMaxFloat);
 
 					yReady = true;
 				}
@@ -503,7 +586,7 @@ public class DataExplorer
 
 	}
 
-	private void cutArea(Bank selBank)
+	public void cutArea(Bank selBank)
 	{
 		cutPanel.removeAll();
 
@@ -590,7 +673,7 @@ public class DataExplorer
 				{
 					if (clasDetectorName == null || !bankReady)
 					{
-						System.out.println("Complete all selection first.");
+						System.out.println("\n Complete all selection first.");
 						return;
 					}
 					cut1Name = (String) cut1Combo.getItemAt(cut1Combo.getSelectedIndex());
@@ -600,20 +683,20 @@ public class DataExplorer
 
 					if (run == null)
 					{
-						System.out.println("\nPlease enter a run number");
+						System.out.println("\n Please enter a run number");
 						return;
 					}
 					if (run.runExist())
 					{
-						System.out.println("Seleted cuts are:");
-						System.out.println("Cut1 variable:" + cut1Name);
-						System.out.println("Cut2 variable:" + cut2Name);
-						System.out.println("Cut3 variable:" + cut3Name);
-						System.out.println("Cut4 variable:" + cut4Name);
+						System.out.println("\n Seleted cuts are:");
+						System.out.println(" Cut1 variable:" + cut1Name);
+						System.out.println(" Cut2 variable:" + cut2Name);
+						System.out.println(" Cut3 variable:" + cut3Name);
+						System.out.println(" Cut4 variable:" + cut4Name);
 						selectionIsMade = true;
 					} else
 					{
-						System.out.println("\nThe requested run NOT found ");
+						System.out.println("\n The requested run NOT found ");
 						return;
 					}
 				}
@@ -633,7 +716,7 @@ public class DataExplorer
 	}
 
 	// --------- Cut expression area --------------------------
-	private void cutExpArea()
+	public void cutExpArea()
 	{
 		JLabel expLabel = new JLabel("Expression: ", JLabel.CENTER);
 		final JTextField expText = new JTextField(20);
@@ -646,9 +729,9 @@ public class DataExplorer
 				cutExpStr = expText.getText();
 				if (cutExpReady && selectionIsMade)
 				{
-					System.out.println("Selection entered: " + cutExpStr);					
+					System.out.println("\n Selection entered: " + cutExpStr);					
 				} else
-					System.out.println("\nMake other selections first.");
+					System.out.println("\n Make other selections first.");
 			}
 		});
 		cutExpPanel.add(expLabel);
@@ -660,12 +743,12 @@ public class DataExplorer
 
 
 	// --------------------- Text Area --------------------------
-	private void textArea()
+	public void textArea()
 	{
 		// -------------- The text area -------------------------------
 		textArea = new JTextArea(40, 80);
 		textArea.setEditable(false);
-
+		textArea.setFont(new Font("monospaced", Font.PLAIN, 12));
 		PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
 
 		// keeps reference of standard output stream
@@ -676,7 +759,7 @@ public class DataExplorer
 		System.setErr(printStream);
 	}
 
-	private void makePlot()
+	public void makePlot()
 	{
 		JButton plotXButton = new JButton("Plot X 1D");
 		plotXButton.addActionListener(new ActionListener()
@@ -685,44 +768,44 @@ public class DataExplorer
 			{
 				if (!xReady)
 				{
-					System.out.println("\nInvalid value entered");
+					System.out.println("\n Invalid value entered");
 					return;
 				}
 				if(threadIsAlive)
 				{
-					System.out.println("\n!!!! You must wait until current filling  is done !!!\n");
+					System.out.println("\n !!!! You must wait until current filling  is done !!!\n");
 					return;
 				}
 				run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
 				if (run.runExist())
 				{
 					threadIsAlive = true;
-					plotterThread = new Thread(new Runnable()
+					explorerThread = new Thread(new Runnable()
 					{
 						public void run()
 						{
 							if (cutExpStr.equals("") || cutExpStr.equals("N/A") || !selectionIsMade)
 							{
-								System.out.println("\nFilling the histogram ....");
+								System.out.println("\n Filling the histogram ....");
 								new RunExplorer().make1DPlot(run, clasDetectorName, bankXName, xStr, xnBinsInt,
 										xMinFloat,
 										xMaxFloat);
 							}
 							else
 							{
-								System.out.println("\nFilling the histogram with cut selected....");
+								System.out.println("\n Filling the histogram with cut selected....");
 								new RunExplorer().make1DPlotCut(run, clasDetectorName, bankXName, xStr, cut1Name,
 										cut2Name, cut3Name, cut4Name, cutExpStr, xnBinsInt, xMinFloat,
 										xMaxFloat);
 							}
-							System.out.println("\nDone with the histogram!");
+							System.out.println("\n Done with the histogram!");
 							threadIsAlive = false;
 						}
 					});
-					plotterThread.start();
+					explorerThread.start();
 				}
 				else
-					System.out.println("\nThe requested run NOT found.");
+					System.out.println("\n The requested run NOT found.");
 			}
 		});
 
@@ -733,44 +816,44 @@ public class DataExplorer
 			{
 				if (!yReady)
 				{
-					System.out.println("\nInvalid value entered");
+					System.out.println("\n Invalid value entered");
 					return;
 				}
 				if(threadIsAlive)
 				{
-					System.out.println("\n!!!! You must wait until current filling  is done !!!\n");
+					System.out.println("\n !!!! You must wait until current filling  is done !!!\n");
 					return;
 				}
 				run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
 				if (run.runExist())
 				{
 					threadIsAlive = true;
-					plotterThread = new Thread(new Runnable()
+					explorerThread = new Thread(new Runnable()
 					{
 						public void run()
 						{
 							if (cutExpStr.equals("") || cutExpStr.equals("N/A") || !selectionIsMade)
 							{
-								System.out.println("\nFilling the histogram ....");
+								System.out.println("\n Filling the histogram ....");
 								new RunExplorer().make1DPlot(run, clasDetectorName, bankXName, yStr, ynBinsInt,
 										yMinFloat,
 										yMaxFloat);
 							}
 							else
 							{
-								System.out.println("\nFilling the histogram with cut selected....");
+								System.out.println("\n Filling the histogram with cut selected....");
 								new RunExplorer().make1DPlotCut(run, clasDetectorName, bankXName, yStr, cut1Name,
 										cut2Name, cut3Name, cut4Name, cutExpStr, ynBinsInt, yMinFloat,
 										yMaxFloat);
 							}
-							System.out.println("\nDone with the histogram!");
+							System.out.println("\n Done with the histogram!");
 							threadIsAlive = false;
 						}
 					});
-					plotterThread.start();
+					explorerThread.start();
 				}
 				else
-					System.out.println("\nThe requested run NOT found.");
+					System.out.println("\n The requested run NOT found.");
 			}
 		});
 
@@ -781,12 +864,12 @@ public class DataExplorer
 			{
 				if (!xReady || !yReady)
 				{
-					System.out.println("\nInvalid value entered");
+					System.out.println("\n Invalid value entered");
 					return;
 				}
 				if(threadIsAlive)
 				{
-					System.out.println("\n!!!! You must wait until current filling  is done !!!\n");
+					System.out.println("\n !!!! You must wait until current filling  is done !!!\n");
 					return;
 				}
 
@@ -794,34 +877,34 @@ public class DataExplorer
 				if (run.runExist())
 				{
 					threadIsAlive = true;
-					plotterThread = new Thread(new Runnable()
+					explorerThread = new Thread(new Runnable()
 					{
 						public void run()
 						{
 
 							if (cutExpStr.equals("") || cutExpStr.equals("N/A") || !selectionIsMade)
 							{
-								System.out.println("\nFilling the histogram ....");
+								System.out.println("\n Filling the histogram ....");
 								new RunExplorer().make2DPlot(run, clasDetectorName, bankXName, xStr, yStr, xnBinsInt,
 										xMinFloat,
 										xMaxFloat, ynBinsInt, yMinFloat, yMaxFloat);
 							}
 							else
 							{
-								System.out.println("\nFilling the histogram with cut selected ....");
+								System.out.println("\n Filling the histogram with cut selected ....");
 								new RunExplorer().make2DPlotCut(run, clasDetectorName, bankXName, xStr, yStr, cut1Name,
 										cut2Name, cut3Name, cut4Name, cutExpStr, xnBinsInt, xMinFloat,
 										xMaxFloat, ynBinsInt, yMinFloat, yMaxFloat);
 							}
 
-							System.out.println("\nDone with the histogram!");
+							System.out.println("\n Done with the histogram!");
 							threadIsAlive = false;
 						}
 					});
-					plotterThread.start();
+					explorerThread.start();
 				}
 				else
-					System.out.println("\nThe requested run NOT found.");
+					System.out.println("\n The requested run NOT found.");
 			}
 		});
 
@@ -832,7 +915,7 @@ public class DataExplorer
 	}
 
 	// -------------------- Combine all the panels with the main frame --------------------
-	private void combineComponents()
+	public void combineComponents()
 	{
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.gridx = 0;
@@ -848,6 +931,7 @@ public class DataExplorer
 
 		// ------------------ Add all the button/box/text area components to the frame------------
 		container.add(headerLabel);
+		container.add(pathPanel);
 		container.add(runPanel);
 		container.add(eventPanel);
 		container.add(detControlPanel);
@@ -866,14 +950,14 @@ public class DataExplorer
 		mainFrame.setVisible(true);
 
 		System.out.println(
-				"\t\t----------------------------------------------------------------------------------------------------");
-		System.out.println("\t\t\tWelcome to CLAS Data Explorer");
+				"\t\t-----------------------------------------------------------------------------");
+		System.out.println("\t\t\t\t\tWelcome to CLAS Data Explorer");
 		System.out.println(
-				"\t\t----------------------------------------------------------------------------------------------------");
+				"\t\t-----------------------------------------------------------------------------");
 	}
 
 	// ----------------- Call to Analysis To Explore----------------
-	private void Explorer()
+	public void Explorer()
 	{
 
 		System.out.println("\nFor X set");
@@ -886,22 +970,5 @@ public class DataExplorer
 		System.out.println(" yMin: " + yMinFloat);
 		System.out.println(" yMax: " + yMaxFloat);
 
-	}
-
-	// ------------ The main function -------------------
-	public static void main(String[] args)
-	{
-		DataExplorer explorer = new DataExplorer();
-		explorer.runArea();
-		explorer.eventArea();
-		explorer.detectorSelArea();
-		explorer.bankSelArea();
-		explorer.xSelArea(null);
-		explorer.ySelArea(null);
-		explorer.cutArea(null);
-		explorer.cutExpArea();
-		explorer.makePlot();
-		explorer.textArea();
-		explorer.combineComponents();
 	}
 }

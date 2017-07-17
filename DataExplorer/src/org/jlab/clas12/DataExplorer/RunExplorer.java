@@ -5,7 +5,8 @@ import javax.swing.JFrame;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.graphics.EmbeddedCanvas;
-import org.jlab.latif.clas12lib.ClasRecRun;
+
+import org.jlab.latif.clas12lib.core.ClasRecRun;
 
 /**
  * Exploring the CLAS run

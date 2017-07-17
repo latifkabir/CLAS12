@@ -8,6 +8,7 @@ package org.jlab.clas12.DataExplorer;
  */
 public class Constants
 {
-	public static final String DATA_DIR = "/home/siplu/GIT/JLAB/DATA/clas/outP1p1_r";
-    public static final String BANK_DEF_DIR = "/home/siplu/GIT/JLAB/Personal/CLAS/Clas12Soft/bankdefs/hipo/";
+	// Default data path with file prefix
+	public static final String DATA_DIR = "/volatile/clas12/kpp/production/pass5/cooked/out_clas12_000";
+	public static final String FILE_INNER_FIX = "_a00";
 }
