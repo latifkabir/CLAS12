@@ -21,18 +21,16 @@ java -jar /volatile/clas12/latif/bin/DataExplorer.jar
 Dependencies
 --------------
 
- - CoatJava
- - Jackson
- - Clas12lib
+ - Clas12lib : Contains coatjava and other dependencies in a single jar
 
-The jar files for each of the above packages are stored inside the ```lib/``` directory. You need to add them to the ```Build Path``` before you can compile the DataExplorer. You are free to replace CoatJava jar with your own copy.
+The jar files for each of the above packages are stored inside the ```Clas12lib/lib/``` directory. You need to add them to the ```Build Path``` before you can compile the DataExplorer. You are free to replace CoatJava jar with your own copy.
 
 Compilation Instructions
 ------------------------
 
 1. Download/clone the ```DataExplorer package```
 2. From your IDE export the package as new project.
-3. Add jars for ```CoatJava, Jackson, Clas12lib``` to your build path.
+3. Add jars for ```clas12lib``` to your build path.
 4. Modify the file ```src/*/Constants.java``` to set correct default data path for your system.
 5. From Eclipse export to runnable jar
 
