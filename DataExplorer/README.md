@@ -15,7 +15,7 @@ Running on JLAB ifarm
 ---------------------
 You can run the pre-compiled compiled jar from ```ifram``` by issuing the following command (assuming you ssh with -Y option):
 ```
-java -jar /volatile/clas12/latif/DataExplorer.jar
+java -jar /volatile/clas12/latif/bin/DataExplorer.jar
 ```
 
 Dependencies
