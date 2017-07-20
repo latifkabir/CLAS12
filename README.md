@@ -6,3 +6,4 @@ CLAS 12 Software
 - Clas12lib: Contains CoatJava and other dependencies packed in a single jar.
 
 Please read the README file inside each package for detailed instructions for that specific package.
+
