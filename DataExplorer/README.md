@@ -23,7 +23,7 @@ Dependencies
 
  - Clas12lib : Contains coatjava and other dependencies in a single jar
 
-The jar files for each of the above packages are stored inside the ```Clas12lib/lib/``` directory. You need to add them to the ```Build Path``` before you can compile the DataExplorer. You are free to replace CoatJava jar with your own copy.
+The required jar file is stored inside the ```Clas12lib/lib/``` directory. You need to add them to the ```Build Path``` before you can compile the DataExplorer. 
 
 Compilation Instructions
 ------------------------

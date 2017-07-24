@@ -9,6 +9,6 @@ package org.jlab.clas12.DataExplorer;
 public class Constants
 {
 	// Default data path with file prefix
-	public static final String DATA_DIR = "/volatile/clas12/kpp/production/pass5/cooked/out_clas12_000";
-	public static final String FILE_INNER_FIX = "_a00";
+	public static final String DATA_DIR = "/volatile/clas12/kpp/production/pass5/cooked/out_clas12_";
+	public static final String FILE_INNER_FIX = "_a";
 }
