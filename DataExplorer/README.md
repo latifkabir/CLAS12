@@ -29,15 +29,15 @@ Compilation Instructions
 ------------------------
 
 1. Download/clone the ```DataExplorer package```
-2. From your IDE export the package as new project.
+2. From your IDE(Eclipse) export the package as new project.
 3. Add jars for ```clas12lib``` to your build path.
 4. Modify the file ```src/*/Constants.java``` to set correct default data path for your system.
-5. From Eclipse export to runnable jar
+5. From IDE(Eclipse) export to runnable jar
 
 How to use
 ----------
 
-Check the presentation ![here](https://userweb.jlab.org/~latif/Hall_B/DC_Update_CalCom_meeting_July14_2017.pdf)
+Check the presentation [here](https://userweb.jlab.org/~latif/Hall_B/DC_Update_CalCom_meeting_July14_2017.pdf)
 
 **Note:**
 - In the run number field, the systax is ```RunNumber:FileNumber```

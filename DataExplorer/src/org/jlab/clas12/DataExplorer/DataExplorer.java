@@ -149,7 +149,7 @@ public class DataExplorer
 		headerLabel.setBorder(border);
 
 		JLabel pathLabel = new JLabel("Path with file prefix: ", JLabel.CENTER);
-		final JTextField pathText = new JTextField(Constants.DATA_DIR,25);
+		final JTextField pathText = new JTextField(Constants.DATA_DIR,30);
 		JButton setPathButton = new JButton("Set");
 	
 		setPathButton.addActionListener(new ActionListener()
@@ -170,7 +170,7 @@ public class DataExplorer
 	public void runArea()
 	{				
 		JLabel runLabel = new JLabel("Run #: ", JLabel.CENTER);
-		final JTextField runText = new JTextField(6);
+		final JTextField runText = new JTextField(12);
 		JButton enterButton = new JButton("Enter");
 		
 		enterButton.addActionListener(new ActionListener()
@@ -498,7 +498,11 @@ public class DataExplorer
 					System.out.println(" nBins: " + xnBinsInt);
 					System.out.println(" xMin: " + xMinFloat);
 					System.out.println(" xMax: " + xMaxFloat);
-
+					if (xnBinsInt < 0)
+					{
+						System.out.println("\nThe number of bins should NOT be negative");
+						return;
+					}
 					xReady = true;
 				}
 			}
@@ -578,7 +582,11 @@ public class DataExplorer
 					System.out.println(" nBins: " + ynBinsInt);
 					System.out.println(" yMin: " + yMinFloat);
 					System.out.println(" yMax: " + yMaxFloat);
-
+					if (ynBinsInt < 0)
+					{
+						System.out.println("\nThe number of bins should NOT be negative");
+						return;
+					}
 					yReady = true;
 				}
 			}
@@ -957,9 +965,9 @@ public class DataExplorer
 		System.out.println("\n\n\tGeneral Instructions:");
 		System.out.println("\t----------------------");
 		System.out.println("\n\t1. The default data path is set to kpp pass5 cooked data. Change the path "
-				+ " if you want to explore other data. \n\t   Note the file prefix included in the path.");
-		System.out.println("\n\t2. Enter the run number in the following format: \"runNumber:fileNumber\", for kpp "
-				+ "data these two numbers \n\t   need to be in six and five digits format respectively. An example is 000810:00010");
+				+ " if you want to explore \n\t   other data. Note, you can include file prefix in the path.");
+		System.out.println("\n\t2. In the run number box enter the remaining part of the file name without file extension."
+				+ "\n\t   An example is 000810_a00013");
 		System.out.println("\n\t3. The bank menu and menu for variables are dynamic. It will get "
 				+ "updated based on parent selection.");
 		System.out.println("\n\t4. To select cut, use logical expressions in terms of a,b,c,d."
