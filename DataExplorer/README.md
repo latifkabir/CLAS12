@@ -30,7 +30,7 @@ Compilation Instructions
 
 1. Download/clone the ```DataExplorer package```
 2. From your IDE(Eclipse) export the package as new project.
-3. Add jars for ```clas12lib``` to your build path.
+3. Add jar for ```clas12lib``` to your build path.
 4. Modify the file ```src/*/Constants.java``` to set correct default data path for your system.
 5. From IDE(Eclipse) export to runnable jar
 
