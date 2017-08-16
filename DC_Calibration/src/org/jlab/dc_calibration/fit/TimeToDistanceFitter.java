@@ -187,8 +187,6 @@ public class TimeToDistanceFitter implements ActionListener, Runnable
 	private OrderOfAction OAInstance;
 	private DCTabbedPane dcTabbedPane;
 
-	// MK testing
-	// private NTuple nTupletimeVtrkDocaVZ;
 	double[] tupleVars;
 
 	public TimeToDistanceFitter(ArrayList<String> files, boolean isLinearFit)
@@ -198,8 +196,6 @@ public class TimeToDistanceFitter implements ActionListener, Runnable
 		this.readerH = new HipoDataSource();
 		this.dcTabbedPane = new DCTabbedPane("PooperDooper");
 		this.isLinearFit = isLinearFit;
-		// this.nTupletimeVtrkDocaVZ = new NTuple("testData",
-		// "Sector:SuperLayer:ThetaBin:Doca:Time");
 		this.tupleVars = new double[5];
 
 		createVerticalLinesForDMax();
@@ -213,8 +209,6 @@ public class TimeToDistanceFitter implements ActionListener, Runnable
 		this.reader = new EvioDataChain();
 		this.readerH = new HipoDataSource();
 		this.dcTabbedPane = new DCTabbedPane("PooperDooper");
-		// this.nTupletimeVtrkDocaVZ = new NTuple("testData",
-		// "Sector:SuperLayer:ThetaBin:Doca:Time");
 		this.tupleVars = new double[5];
 		this.isLinearFit = isLinearFit;
 
@@ -633,46 +627,29 @@ public class TimeToDistanceFitter implements ActionListener, Runnable
 		int ndf = -1;
 		double chi2 = -1.0, Vtx0_z = -10000.0;
 
-		//
-		// for (String str : fileArray) {
-		// reader.addFile(str);
-		// }
-		// reader.open();
-		//
-		// //readerH.open("src/files/DCRBREC.hipo");
 		for (String str : fileArray)
-		{ // Now reading multiple hipo files.
+		{ 
+			// Now reading multiple hipo files.
 			System.out.println("Ready to Open & read " + str);
 			readerH.open(str);
-			// System.out.println("Opened " + str + " and ready to read data.");
 
 			while (readerH.hasEvent())
-			{// && icounter < 100
-
+			{
 				icounter++;
 				if (icounter % 2000 == 0)
 				{
 					System.out.println("Processed " + icounter + " events.");
 				}
-
-				// System.out.println("Debug0: Processed " + icounter + " events.");
-
+				
 				// EvioDataEvent event = reader.getNextEvent();
 				DataEvent event = readerH.getNextEvent();
 				if (event == null)
 					continue;
-				// //got 'bank not found' message for each event.
-				// ProcessTBSegmentTrajectory tbSegmentTrajectory = new
-				// ProcessTBSegmentTrajectory(event);
-				// if (tbSegmentTrajectory.getNsegs() > 0) {
-				// counter++;
-				// }
-				//
+
 				if (event.hasBank("TimeBasedTrkg::TBSegmentTrajectory"))
 				{
 					counter++;
 				}
-
 				// System.out.println("Debug1: Processed " + icounter + " events.");
 
 				if (event.hasBank("TimeBasedTrkg::TBHits") && event.hasBank("TimeBasedTrkg::TBSegments")// )
@@ -683,24 +660,15 @@ public class TimeToDistanceFitter implements ActionListener, Runnable
 						&& event.hasBank("TimeBasedTrkg::TBTracks"))
 				{
 
-					// System.out.println("Debug2: Processed " + icounter + " events.");
-
-					processTBTracksAndCrosses(event); // Identify corresponding segments (4/13/17)
-
-					// System.out.println("Debug3: Processed " + icounter + " events.");
-
+					processTBTracksAndCrosses(event); // Identify corresponding segments
 					ProcessTBTracks tbTracks = new ProcessTBTracks(event);
-
-					// System.out.println("Debug4: Processed " + icounter + " events.");
 
 					if (tbTracks.getNTrks() > 0)
 					{
 						// processTBhits(event);
 						// processTBSegments(event);
-
 						// System.out.println("Debug5: Processed " + icounter + " events.");
-
-						// ===========
+						
 						bnkTrks = (DataBank) event.getBank("TimeBasedTrkg::TBTracks");
 						for (int j = 0; j < bnkTrks.rows(); j++)
 						{
@@ -714,8 +682,7 @@ public class TimeToDistanceFitter implements ActionListener, Runnable
 							{
 								h1fitChi2Trk2.fill(chi2);
 							}
-						}
-						// ===========
+						}				
 					}
 				}
 
@@ -1650,25 +1617,11 @@ public class TimeToDistanceFitter implements ActionListener, Runnable
 			}
 		}
 
-		// try {
-		// // Lets Run the Fitter
-		// //runFitterUsing3DHists();
-		//
-		// runFitter(); //This one does simultaneous fit over all theta bins
-		// runFitterOld(); //This one fits in individual theta bins
-		//
-		// } catch (IOException ex) {
-		// Logger.getLogger(TimeToDistanceFitter.class.getName()).log(Level.SEVERE, null, ex);
-		// }
-
 		// Done running fitter
 		// lets create lines we just fit
 		createFitLines();
-		/*
-		 * createFitLinesXTB(); MakeAndDrawXTProjectionsOfXTBhists();
-		 */
 
-		DrawResidualsInTabbedPanes(); // 5/14/17
+		DrawResidualsInTabbedPanes(); 
 
 		// drawSectorWiseCanvases();
 		DrawInTabbedPanesOfSecSLTh();
@@ -2114,7 +2067,6 @@ public class TimeToDistanceFitter implements ActionListener, Runnable
 	@Override
 	public void run()
 	{
-
 		processData();
 
 		drawQuickTestPlots();

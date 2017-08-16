@@ -1,2 +1,1 @@
 #Sec  SL  v0  deltanm  tMax  distbeta  delta_bfield_coefficient  b1  b2  b3  b4
-2 1    0.0037  2.1138  164.7609  0.0107  0.1600  0.4000  -2.0000  10.0000  -6.5000  0.0000 
