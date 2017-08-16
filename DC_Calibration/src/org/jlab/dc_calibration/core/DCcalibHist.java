@@ -110,10 +110,12 @@ public class DCcalibHist
 		//canvas.draw(histogram);
 		return gr;
 	}
-
+		
 	
-	public void GetDataSet()
+	//------------------- The fitting -----------------------------------------------------
+	public void DoFitting()
 	{
+		
 		GraphErrors gr = FillHist();
 		double[] X = new double[100];
 		double[] Y = new double[100];
@@ -125,25 +127,15 @@ public class DCcalibHist
 			X[i] = gr.getDataX(i);
 			Y[i] = gr.getDataY(i);
 		}
-	}
 	
-	
-	//------------------- The fitting -----------------------------------------------------
-	public void DoFitting(String[] args)
-	{
-		double[] x = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 };
-		double[] y = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 };
-		double[] theXvalues = x.clone();
-		double[] measurements = y.clone();
-
+		
 		int npars = 2;
 
-		double aLen = measurements.length;
+		double aLen = X.length;
 		System.out.println("Size or length of array 'measurements' is " + aLen);
 		System.out.print("xArray[] = ");
-		printArray(theXvalues);
 
-		KrishnaFcn theFCN = new KrishnaFcn(theXvalues, measurements);
+		FitFunction theFCN = new FitFunction(X, Y);
 
 		MnUserParameters upar = new MnUserParameters();
 		upar.add("p0", 0.0, 0.001);
@@ -174,30 +166,17 @@ public class DCcalibHist
 
 	}
 
-	static void printArray(double[] array)
-	{
-		double aLen = array.length;
-		for (int i = 0; i < aLen; i++)
-		{
-			if (i > 0 && i % 10 == 0)
-			{
-				System.out.println("");
-			}
-			System.out.print(array[i] + " ");
-		}
-		System.out.println("");
-	}
 
 	// static class ReneFcn implements FCNBase
-	static class KrishnaFcn implements FCNBase
+	static class FitFunction implements FCNBase
 	{
 		private double[] theXvalues;
-		private double[] theMeasurements;
+		private double[] theYvalues;
 
-		KrishnaFcn(double[] xVals, double[] meas)
+		FitFunction(double[] xVals, double[] yVals)
 		{
 			theXvalues = xVals;
-			theMeasurements = meas;
+			theYvalues = yVals;
 		}
 
 		public double errorDef()
@@ -207,17 +186,21 @@ public class DCcalibHist
 
 		public double valueOf(double[] par)
 		{
-			double m = par[1]; // straight line equation: y = m*x + c
+			double m = par[1]; 
 			double c = par[0];
 			double chisq = 0.0;
-			for (int i = 0; i < theMeasurements.length; i++)
+			double yi;
+			double xi;
+			double ei;
+			double yExp;
+			
+			for (int i = 0; i < theYvalues.length; i++)
 			{
-				double yi = theMeasurements[i]; 
-
-				double xi = theXvalues[i]; 
-				double ei = yi;
-				double nexp = m * xi + c;
-				chisq += (yi - nexp) * (yi - nexp);/// ei;
+				 yi = theYvalues[i]; 
+				 xi = theXvalues[i]; 
+				 ei = yi;
+				 yExp = m * xi*xi + c;
+				chisq += (yi - yExp) * (yi - yExp);/// ei;
 			}
 			return chisq;
 		}
@@ -231,9 +214,9 @@ public class DCcalibHist
 		Stopwatch timer = new Stopwatch();
 		timer.start();
 		DCcalibHist test = new DCcalibHist(810, 22, 42);
-//	    test.FillHist();
+	    test.FillHist();
+	    test.DoFitting();
 		//test.FillHistTest();
-		test.GetDataSet();
 		timer.stop();
 		System.out.println(timer.getElapsedTime());
 	}

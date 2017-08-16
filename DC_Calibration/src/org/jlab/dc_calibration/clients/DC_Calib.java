@@ -381,8 +381,8 @@ public class DC_Calib extends WindowAdapter implements WindowListener, ActionLis
                     System.out.println("Debug 0");
             EstimateT0correction t0c = new EstimateT0correction(results, fileArray);
             t0c.DrawPlots(); 
-            t0c.DrawPlotsForAllCables();
-            t0c.DrawPlotsForTMaxAllCables();
+            t0c.FitAndDrawT0PlotsForAllCables();
+            t0c.FitAndDrawTMaxPlotsForAllCables();
             System.out.println("Finished drawing the T0 plots ..");
         }
     }    

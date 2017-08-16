@@ -32,6 +32,8 @@ import static org.jlab.dc_calibration.domain.Constants.nSectors;
 import static org.jlab.dc_calibration.domain.Constants.nSlots;
 import static org.jlab.dc_calibration.domain.Constants.nSlots7;
 import static org.jlab.dc_calibration.domain.Constants.tHigh;
+import static org.jlab.dc_calibration.domain.Constants.tHigh4T0Fits;
+import static org.jlab.dc_calibration.domain.Constants.tLow4T0Fits;
 import static org.jlab.dc_calibration.domain.Constants.tLow4TmaxFits;
 import static org.jlab.dc_calibration.domain.Constants.tMaxSL;
 import static org.jlab.dc_calibration.domain.Constants.timeAxisMax;
@@ -111,7 +113,8 @@ public class EstimateT0correction {
         //double [] tHigh = {380.0, 380.0, 680.0, 780.0, 1080.0, 1080.0};
         
         String hNm = String.format("timeAll");        
-        h1timeAll = new H1F(hNm, 200, -200.0, 2000.0);
+        //h1timeAll = new H1F(hNm, 200, -200.0, 2000.0);
+        h1timeAll = new H1F(hNm, 200, -200.0, 3800.0);
         String hTtl = String.format("time");
         h1timeAll.setTitleX(hTtl);    h1timeAll.setLineColor(4);
         
@@ -189,7 +192,8 @@ public class EstimateT0correction {
                     for(int l=0; l<nCables6; l++) {
                         hNm = String.format("timeS%dS%dS%dCbl%d",i+1,j+1,k+1,l+1);
                         //h1timeSSSC[i][j][k][l] = new H1F(hNm, 120, -20.0, 220.0); //Useful for time from TBHits
-                        h1timeSSSC[i][j][k][l] = new H1F(hNm, 150, 50.0, 350.0);   //Useful for time from HBHits
+                        //h1timeSSSC[i][j][k][l] = new H1F(hNm, 150, 50.0, 350.0);   //Useful for time from HBHits
+                        h1timeSSSC[i][j][k][l] = new H1F(hNm, 150, tLow4T0Fits[j], tHigh4T0Fits[j]);   //Useful for time from HBHits
                         hTtl = String.format("time (Sec%d SL%d Slot%d Cable%d)",i+1,j+1,k+1,l+1);
                         h1timeSSSC[i][j][k][l].setTitleX(hTtl);
                         h1timeSSSC[i][j][k][l].setLineColor(1);
@@ -266,14 +270,15 @@ public class EstimateT0correction {
                 //if (event.hasBank("TimeBasedTrkg::TBHits") && event.hasBank("TimeBasedTrkg::TBSegments")) {
                 if (event.hasBank("HitBasedTrkg::HBHits") && event.hasBank("HitBasedTrkg::HBSegments")) { //For a quick test
                     ProcessTBTracks tbTracks = new ProcessTBTracks(event);
-                    if (tbTracks.getNTrks() > 0) {
+                    //System.out.println("# of tbTracks = " + tbTracks.getNTrks());
+                    //if (tbTracks.getNTrks() > 0) {
                         processTBhits(event);
                         //processTBSegments(event);
                         
                         if (event.hasBank("DC::tdc")) {
                             processDC_TDC(event);
                         }
-                    }
+                    //}
                 }
                 //if (counter > 50000) {  break;   }
                 if (counter % 100 == 0) {
@@ -318,7 +323,8 @@ public class EstimateT0correction {
             //System.out.println("sec sl lay wire: " + sec + " " + sl + " " + lay + " " + wire);
             //System.out.println("sec sl slot cable: " + sec + " " + sl + " " + slot1to7 + " " + cable1to6);
             
-            time = (double) bnkHits.getFloat("time", j);            
+            time = (double) bnkHits.getFloat("time", j);     
+            //System.out.println("time = " + time);
             
             h1timeAll.fill(time);
             h1timeSL[sl-1].fill(time); h1timeSLn[sl-1].fill(time); h1timeSLn2[sl-1].fill(time);
@@ -508,7 +514,7 @@ public class EstimateT0correction {
             }
     }
 
-    public void DrawPlotsForAllCables() { 
+    public void FitAndDrawT0PlotsForAllCables() { 
         String iName = null, str = null;
         int cableID = 0;
         double [][][][][] fParSSSCP = new double [nSectors][nSL][nSlots7][nCables6][5];
@@ -562,7 +568,8 @@ public class EstimateT0correction {
                                                 
                         cableID = pad+1;
                         
-                        T0FitFunction f1 = new T0FitFunction("T0FitFunction", 50.1, 280.1); 
+                        //T0FitFunction f1 = new T0FitFunction("T0FitFunction", 50.1, 280.1); 
+                        T0FitFunction f1 = new T0FitFunction("T0FitFunction", tLow4T0Fits[j], tHigh4T0Fits[j]); 
                         f1.addParameter("p0");        
                         f1.addParameter("p1");        
                         f1.addParameter("p2");        
@@ -714,7 +721,7 @@ public class EstimateT0correction {
         return error;
     }
 
-    public void DrawPlotsForTMaxAllCables() { 
+    public void FitAndDrawTMaxPlotsForAllCables() { 
         String iName = null, str = null;
         int cableID = 0;
         double [][][][][] fParSSSCP = new double [nSectors][nSL][nSlots7][nCables6][5];

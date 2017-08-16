@@ -13,6 +13,7 @@
 package org.jlab.dc_calibration.domain;
 
 public final class Constants {
+
 	protected static final double rad2deg = 180.0 / Math.PI;
 	protected static final double deg2rad = Math.PI / 180.0;
 
@@ -72,6 +73,10 @@ public final class Constants {
         protected static final int nCables = 84;
         protected static final int nCables6 = 6; //# of Cables per DCRB or STB.
         protected static final int nSlots7 = 7;  //# of STBs or occupied DCRB slots per SL.
+        protected static final double [] tLow4T0Fits //= {180.0, 180.0, 180.0, 280.0, 480.0, 480.0};//For KPP runs
+                                                    = {000.0, 000.0, 2200.0, 2200.0, 2200.0, 2200.0};//For Cosmic runs
+        protected static final double [] tHigh4T0Fits //= {380.0, 380.0, 680.0, 780.0, 1080.0, 1080.0}; //For KPP runs
+                                             = {4000.0, 4000.0, 2700.0, 2700.0, 3000.0, 3000.0}; //For Cosmic runs
         protected static final double [] tLow4TmaxFits = {180.0, 180.0, 180.0, 280.0, 480.0, 480.0};
         protected static final double [] tHigh = {380.0, 380.0, 680.0, 780.0, 1080.0, 1080.0};
         
@@ -82,12 +87,18 @@ public final class Constants {
 //                              = 2;   // for using XY-proj from h3BTXmap  
 //                              = 3;   // for using B-field also from h3BTXmap  
         
-        protected static final int histTypeToUseInFitting = 2;//1;//2; 
-        //make the following controllable from the GUI (as we may have different Max for B-field depending on expt.
-        protected static final int bFieldBins = 20;
-        protected static double bFieldMin = 0.0, bFieldMax = 1.5;
-        protected static final int binForTestPlotTemp = bFieldBins/2; //for temp purpose
+        protected static final int histTypeToUseInFitting = 1;//2;//1;//2; 
+
         protected static final double calcDocaCut = 5.0; //1.0 //0.85
+        protected static final String outFileForFitPars = "src/files/fitParameters.txt";
+
         
+        //================ Binning parameters various histograms ==================
+        //make the following controllable from the GUI (as we may have different Max for B-field depending on expt.
+        protected static final int nBFieldBins = 20;
+        protected static final double bFieldMin = 0.0, bFieldMax = 1.5;
+        protected static final int binForTestPlotTemp = nBFieldBins/2; //for temp purpose        
+        protected static final int nLocalAngleBins = 160;
+        protected static final double localAngleMin = -80.0, localAngleMax = 80.0;
 	private Constants() {}
 }
