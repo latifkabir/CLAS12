@@ -84,15 +84,7 @@ public class FitControlUI extends javax.swing.JFrame
 		getParametersFromCCDB();
 		addJPopupMenuToJTextArea1();
 		this.fitter = fitter;
-		/*
-		 * for(int i=0; i<nSL; i++) { for(int j=0; j<nFitPars; j++) { //resetFitPars[i][j] =
-		 * prevFitPars[i][j]; //resetFitParsLow[i][j] = 0.2 * prevFitPars[i][j];
-		 * //resetFitParsHigh[i][j] = 2.0 * prevFitPars[i][j];
-		 * 
-		 * resetFitPars[i][j] = parsFromCCDB_dc_test1[gSector-1][i][j]; resetFitParsLow[i][j] = 0.2
-		 * * parsFromCCDB_dc_test1[gSector-1][i][j]; resetFitParsHigh[i][j] = 2.0 *
-		 * parsFromCCDB_dc_test1[gSector-1][i][j]; } }
-		 */
+
 		int sector = Integer.parseInt(jComboBox1.getSelectedItem().toString());
 		int superlayer = Integer.parseInt(jComboBox2.getSelectedItem().toString());
 		ccdbVariation = jComboBox4.getSelectedItem().toString(); // 0 for default, 1 for dc_test1
@@ -103,12 +95,7 @@ public class FitControlUI extends javax.swing.JFrame
 		putStepSizeFromConstantsToResetArrays(sector); // Initializing reset array for stepSizes
 		assignParValuesToTextFields(sector, superlayer); // Make the numbers in reset arrays show up
 															// in the text fields
-
-		/*
-		 * try { messageControlTest(); } catch (Exception ex) {
-		 * Logger.getLogger(FitControlUI.class.getName()).log(Level.SEVERE, null, ex); }
-		 */
-		openFileToWriteFitParameters(); // 7/20/17
+		openFileToWriteFitParameters();
 	}
 
 	public void openFileToWriteFitParameters()
@@ -177,10 +164,15 @@ public class FitControlUI extends javax.swing.JFrame
 					resetFitParsLow[i][j] = 2.0 * resetFitPars[i][j];
 					resetFitParsHigh[i][j] = 0.2 * resetFitPars[i][j];
 				}
-				else
+				else if(resetFitPars[i][j] > 0.0)
 				{
 					resetFitParsLow[i][j] = 0.2 * resetFitPars[i][j];
 					resetFitParsHigh[i][j] = 2.0 * resetFitPars[i][j];
+				}
+				else if(resetFitPars[i][j] == 0.0)
+				{
+					resetFitParsLow[i][j] = 0.2 * resetFitPars[i][j] - 0.001;
+					resetFitParsHigh[i][j] = 2.0 * resetFitPars[i][j] + 0.001;
 				}
 			}
 
