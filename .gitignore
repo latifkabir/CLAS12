@@ -4,3 +4,9 @@
 *.fuse_*
 /nbproject/private/
 /build/
+fitParameters.txt
+fitParameters.txt
+residualVsTrkDoca.png
+test_bField.png
+test_bFieldAllSL.png
+test_fitChisqProb.png

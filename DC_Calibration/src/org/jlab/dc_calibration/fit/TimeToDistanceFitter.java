@@ -1068,14 +1068,9 @@ public class TimeToDistanceFitter implements ActionListener, Runnable
 			Logger.getLogger(TimeToDistanceFitter.class.getName()).log(Level.SEVERE, null, ex);
 		}
 
-		int nFreePars = nFitPars; // 9;//4;
-		// if (histTypeToUseInFitting == 3) {
-		// nFreePars = 9;
-		// }
+		int nFreePars = nFitPars; 
 
 		double[][][] pars2write = new double[nSectors][nSL][nFitPars];// nFitPars = 9
-		// double parSteps[] = {0.00001, 0.001, 0.01, 0.0001, 0.001, 0.001, 0.001, 0.001, 0.001,
-		// 0.001};
 
 		Map<Coordinate, MnUserParameters> mapTmpUserFitParameters = new HashMap<Coordinate, MnUserParameters>();
 
