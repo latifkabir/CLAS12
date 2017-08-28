@@ -44,7 +44,7 @@ class ReconTimeFunction
     	return gr;
 	}
     
-     // --------------------> Run this call to main() from Emacs. Eclipse throws an exception for the loop used <-------------- 
+     // --------------------> Run this call to main() from Emacs. Eclipse throws an exception for the loop used for a possible bug in groot <-------------- 
     public static void main(String[] args)
     {
     	CalibStyle.setStyle();

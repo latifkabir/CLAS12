@@ -134,10 +134,12 @@ public class FitControlUI extends javax.swing.JFrame
 		// Instead of reading the two tables again and again whenever we select the item from
 		// the corresponding jComboBox4, it's better to read both once at the beginning,
 		// keep them stored in two different array variables and use those arrays later.
-		ReadT2DparsFromCCDB rdTable = new ReadT2DparsFromCCDB("dc_test1");
+		ReadT2DparsFromCCDB rdTable = new ReadT2DparsFromCCDB("dc_test1",1000);
+		rdTable.LoadCCDB();
 		parsFromCCDB_dc_test1 = rdTable.parsFromCCDB;
 
-		ReadT2DparsFromCCDB rdTable2 = new ReadT2DparsFromCCDB("default");
+		ReadT2DparsFromCCDB rdTable2 = new ReadT2DparsFromCCDB("default",1000);
+		rdTable2.LoadCCDB();
 		parsFromCCDB_default = rdTable2.parsFromCCDB;
 	}
 

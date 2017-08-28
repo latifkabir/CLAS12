@@ -21,7 +21,9 @@ public class TestCCDBreading
 {
 	public static void main(String[] args)
 	{
-		ReadT2DparsFromCCDB rdTable = new ReadT2DparsFromCCDB("dc_test1");
+		ReadT2DparsFromCCDB rdTable = new ReadT2DparsFromCCDB("dc_test1",1000);
+		rdTable.LoadCCDB();
+		
 		Vector<Integer> Sector, Superlayer;
 		Vector<Double> v0, deltanm, tmax, distbeta;
 		Vector<Double> delta_bfield_coefficient, b1, b2, b3, b4;
