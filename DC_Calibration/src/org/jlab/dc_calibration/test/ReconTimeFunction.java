@@ -14,7 +14,7 @@ import org.jlab.dc_calibration.ui.CalibStyle;
 import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.GraphErrors;
 
-class ReconTimeFunction
+public class ReconTimeFunction
 {
 	int SL_index;
 	int sec_index;
@@ -27,7 +27,7 @@ class ReconTimeFunction
     	sec_index = SecIndex;
     	SL_index = SLindex;
     	
-		CalibrationConstantsLoader.Load(10, "default");
+		CalibrationConstantsLoader.Load(1000, "default");
 		TableLoader.Fill();
 	 }
 
@@ -58,17 +58,28 @@ class ReconTimeFunction
 		double maxTime = 200;
 		double minTime = 0;
 		
-		int slIndex = 0;
 		int secIndex = 0;
+		int slIndex = 0;
 		double bField = 0.0;
 
+		GStyle.getGraphErrorsAttributes().setTitle("Time (ns) vs Distance (cm) for S " + (secIndex + 1) + " SL " + (slIndex + 1) + " from Reconstruction");
+		
 		ReconTimeFunction recon = new ReconTimeFunction(secIndex, slIndex);
 
 		// c1.draw(recon.getGraph(bField, 30, minTime, maxTime));		
 		for(double angDegree = 0; angDegree <= 30; angDegree += 5)
 		{
-		    GStyle.getGraphErrorsAttributes().setMarkerColor((int)(angDegree/5) + 1);
+		    GStyle.getGraphErrorsAttributes().setMarkerColor((int)(Math.abs(angDegree)/5) + 1);
 			c1.draw(recon.getGraph(bField, angDegree, minTime, maxTime),"same");
-		}		
+		}
+
+		// for( bField = 0.0; bField <= 1.5; bField += 0.5)
+		// {
+		//     for(double angDegree = 0; angDegree <= 30; angDegree += 5)
+		//     {
+		// 	GStyle.getGraphErrorsAttributes().setMarkerColor((int)(angDegree/5) + 1);
+		// 	c1.draw(recon.getGraph(bField, angDegree, minTime, maxTime),"same");
+		//     }		
+		// }
     }    
 }

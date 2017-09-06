@@ -18,7 +18,7 @@ public final class Constants
 	public static final double deg2rad = Math.PI / 180.0;
 
 	public static final double cos30 = Math.cos(30.0 / rad2deg);
-	public static final double beta = 1.0;
+	public static final double beta = 1.0; //0.0;
 
 	// public static final int nThBinsVz = 6; // [nThBinsVZ][2]
 	// public static final double[] thEdgeVzL = { -2.0, 8.0, 18.0, 28.0, 38.0, 48.0 };

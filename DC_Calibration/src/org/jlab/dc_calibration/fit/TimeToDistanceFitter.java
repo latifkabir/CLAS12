@@ -58,6 +58,7 @@ import org.freehep.math.minuit.FunctionMinimum;
 import org.freehep.math.minuit.MnMigrad;
 import org.freehep.math.minuit.MnStrategy;
 import org.freehep.math.minuit.MnUserParameters;
+import org.jlab.dc_calibration.constants.Constants;
 import org.jlab.dc_calibration.init.Coordinate;
 import org.jlab.dc_calibration.init.ProcessTBTracks;
 import org.jlab.dc_calibration.init.SimpleH3D;
@@ -1170,8 +1171,12 @@ public class TimeToDistanceFitter implements ActionListener, Runnable
 		{
 			System.out.println( "\t" + parName[p] + " : " + fPars[p] + " +/- " + fErrs[p]);
 		}
-		System.out.println("\n\tChi Square : " + mapOfFitFunctions.get(new Coordinate(iSec, iSL)).valueOf(fPars));
+		//System.out.println("\n\tChi Square : " + mapOfFitFunctions.get(new Coordinate(iSec, iSL)).valueOf(fPars));
 		
+		System.out.println("\t====================================================================");
+		System.out.println("\t\t\t Note the beta is currently set to: " + Constants.beta);
+		System.out.println("\t====================================================================");
+
 		
 		System.out.println("End of runFitterNew(..) ");
 	}

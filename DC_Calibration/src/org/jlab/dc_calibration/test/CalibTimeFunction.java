@@ -19,8 +19,8 @@ public class CalibTimeFunction extends Func1D
 {
 	int		secIndex	= 0;
 	int		slIndex		= 0;
-	double	angDeg		= 0;
-	double	bField		= 0;
+	double	angDeg			= 0;
+	double	bField			= 0;
 
 	int		nParam		= 10;					// Number of parameters
 	double	params[]	= new double[nParam];
@@ -75,8 +75,6 @@ public class CalibTimeFunction extends Func1D
 
 		ReadT2DparsFromCCDB defPars = new ReadT2DparsFromCCDB("default",1000);
 		defPars.LoadCCDB();
-		// double myParams[] = { 47.e-04, 1.5, 300, 0.050, 0.16, 0.4, -2.0, 10.0, -6.5, 0.0 }; //
-		// For region 2
 
 		for (angDegree = 0.0; angDegree <= 30.0; angDegree += 5)
 		{

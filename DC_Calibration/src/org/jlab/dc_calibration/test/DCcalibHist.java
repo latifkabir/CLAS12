@@ -66,8 +66,7 @@ public class DCcalibHist
 			DataEvent event;
 			DataBank bank;
 
-			// --------------- Required variables from TBHits
-			// bank---------------------
+			// --------------- Required variables from TBHits bank---------------------
 			short TBHits_status;
 			byte TBHits_sector;
 			byte TBHits_superlayer;
@@ -88,8 +87,7 @@ public class DCcalibHist
 				bank = event.getBank(bankName);
 				for (int k = 0; k < bank.rows(); k++)
 				{
-					// --------- Get desired values from TBHits bank
-					// --------------
+					// --------- Get desired values from TBHits bank  --------------
 					TBHits_status = bank.getShort("status", k);
 					TBHits_sector = bank.getByte("sector", k);
 					TBHits_superlayer = bank.getByte("superlayer", k);
@@ -106,8 +104,8 @@ public class DCcalibHist
 			reader.close();
 		}
 		GraphErrors gr = histogram.getProfileX(); 
-		canvas.draw(gr);
-		//canvas.draw(histogram);
+		//canvas.draw(gr);
+		canvas.draw(histogram);
 		return gr;
 	}
 		
@@ -215,7 +213,7 @@ public class DCcalibHist
 		timer.start();
 		DCcalibHist test = new DCcalibHist(810, 22, 42);
 	    test.FillHist();
-	    test.DoFitting();
+	    //test.DoFitting();
 		//test.FillHistTest();
 		timer.stop();
 		System.out.println(timer.getElapsedTime());
