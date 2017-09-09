@@ -18,5 +18,6 @@ public class Application
 	{
 		CalibStyle.setStyle();
 		DC_Calibration DcCalib = new DC_Calibration();
+		DcCalib.Initialize();
 	}
 }

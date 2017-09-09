@@ -46,3 +46,15 @@ Check the presentation [here](https://userweb.jlab.org/~latif/Hall_B/DC_Update_C
 
 **Screenshot**
 ![Demo](Demo.jpg)
+
+
+To be done for upcoming updates
+-------------------------------
+
+1. Replace file path by file chooser utility.
+2. Allow selection of more than one file. Use run number box for specific file number of selected files.
+3. Remove redundant enter or set button with auto set upon selection.
+4. Add custom style for plots, title, stats, axis. Show stat box.
+5. Fix cut option for float values.
+6. Use JavaFx instead of Swing for GUI implementation.
+7. Add button for XY profile histogram.

@@ -58,6 +58,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.border.LineBorder;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
@@ -66,6 +67,8 @@ import javax.swing.text.TextAction;
 import org.jlab.dc_calibration.core.EstimateT0correction;
 import org.jlab.dc_calibration.core.RunReconstructionCoatjava4;
 import org.jlab.dc_calibration.fit.TimeToDistanceFitter;
+
+import javafx.scene.layout.Border;
 
 public class DC_Calibration extends WindowAdapter implements WindowListener, ActionListener, Runnable
 {
@@ -107,13 +110,19 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 
 	public DC_Calibration()
 	{
+	}
+
+	public void Initialize()
+	{
 		createFrame();
 		createFileChooser();
 		createButtons();
 		createPanels();
 		initFrame();
+		activateTextArea();
+		showInstructions();
 	}
-
+	
 	private void createFrame()
 	{
 		// create all components and add them
@@ -134,7 +143,7 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 
 	private void createBanner()
 	{
-		banner = new JLabel("Welcome to DC Calibration for CLAS12!", JLabel.CENTER);
+		banner = new JLabel("DC Calibration Suite for CLAS12", JLabel.CENTER);
 		banner.setForeground(Color.yellow);
 		banner.setBackground(Color.gray);
 		banner.setOpaque(true);
@@ -161,11 +170,15 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 		bTestEvent.setText("<html>" + "&emsp; &emsp; TestButton " + "<br>" + " Needs to be removed" + "</html>");
 		bT0Correction.setText("<html>" + "Estimate T0s");
 		bReadRecDataIn.setText("<html>" + "Run Decoder" + "</html>");
-		bReconstruction.setText("<html>" + "Run Reconstruction" + "</html>");
-		bTimeToDistance.setText("<html>" + "Run Time vs. Distance Fitter" + "</html>");
-		bCCDBwriter.setText("<html>" + "Load xvst pars to CCDB" + "</html>");
+		bReconstruction.setText("<html><center>" + "Run Reconstruction" + "</center></html>");
+		bTimeToDistance.setText("<html>" + "Run T2D Fitter" + "</html>");
+		bCCDBwriter.setText("<html><center>" + "Load T2D Parameters to CCDB" + "</center></html>");
 
-		bTimeToDistance.setPreferredSize(new Dimension(frameSize.width / 3, frameSize.height / 3));
+		bTimeToDistance.setPreferredSize(new Dimension(frameSize.width /7, frameSize.height / 11));
+		bT0Correction.setPreferredSize(new Dimension(frameSize.width /7, frameSize.height / 11));
+		bReconstruction.setPreferredSize(new Dimension(frameSize.width /7, frameSize.height / 11));
+		bCCDBwriter.setPreferredSize(new Dimension(frameSize.width /7, frameSize.height / 11));
+		bFileChooser.setPreferredSize(new Dimension(frameSize.width /7, frameSize.height / 11));
 	}
 
 	private void createPanels()
@@ -181,7 +194,7 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 		addToRecoButton();
 		addToRadioPanel();
 
-		bTimeToDistance.setPreferredSize(new Dimension(frameSize.width / 9, frameSize.height / 9));
+		//bTimeToDistance.setPreferredSize(new Dimension(frameSize.width / 9, frameSize.height / 9));
 		buttonPanel = new JPanel(new BorderLayout());
 
 		addToButtonPanel();
@@ -214,6 +227,7 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 		// start
 		JPanel subControlPanel1 = new JPanel(new BorderLayout());
 		subControlPanel1.add(bReconstruction, BorderLayout.LINE_START);
+		subControlPanel1.add(bTimeToDistance, BorderLayout.LINE_START);		
 		subControlPanel1.add(radioPanel, BorderLayout.CENTER);
 
 		// Pack bT0Correction & subControlPanel1 into subpanel0 & add to the
@@ -267,19 +281,14 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 	private void addToPanelImage()
 	{
 		ImageIcon imageIcon = new ImageIcon(new ImageIcon(this.getClass().getResource("/images/CLAS12.jpg")).getImage()
-				.getScaledInstance(320, 320, java.awt.Image.SCALE_SMOOTH));
+				.getScaledInstance(300, 300, java.awt.Image.SCALE_SMOOTH));
 		// ImageIcon(this.getClass().getResource("images/timeVsTrkDoca_and_Profiles.png"));
 		JLabel imgLabel = new JLabel(imageIcon);
 		panelImg.add(imgLabel, BorderLayout.CENTER);
-	}
-
-	private void addToPanelImage(String whoMadeMeWake)
-	{
-		ImageIcon imageIcon = new ImageIcon(new ImageIcon(this.getClass().getResource("/images/CLAS12.jpg")).getImage()
-				.getScaledInstance(320, 320, java.awt.Image.SCALE_SMOOTH));
-		// ImageIcon(this.getClass().getResource("images/timeVsTrkDoca_and_Profiles.png"));
-		JLabel imgLabel = new JLabel(imageIcon);
-		panelImg.add(imgLabel, BorderLayout.CENTER);
+		
+		//LineBorder border = (LineBorder) LineBorder.createGrayLineBorder();
+		 LineBorder border = new LineBorder(Color.GRAY, 3);
+		 imgLabel.setBorder(border);
 	}
 
 	private void addToT0CorButton()
@@ -329,7 +338,7 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				System.out.println("Reconstruction Button has been hit..");
+				System.out.println("\tReconstruction Button has been hit..");
 				String choice = ae.getActionCommand();
 				if (choice.equals("Quit"))
 				{
@@ -355,12 +364,12 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 
 			try
 			{
-				System.out.println("File to be uploaded: " + results[0]
+				System.out.println("\tFile to be uploaded: " + results[0]
 						+ "\nComments to be added: '" + results[1] + "'");
 				// Process p = Runtime.getRuntime().exec("pwd");
 
 				command = String.format("./src/files/loadFitParsToCCDB.csh %s '%s'", results[0], results[1]);
-				System.out.println("The following command is being executed: \n " + command);
+				System.out.println("\tThe following command is being executed: \n " + command);
 				command = "./src/files/justEchoHello.sh";
 				Process p = Runtime.getRuntime().exec(command);
 				BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -384,7 +393,7 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 			}
 			catch (IOException e)
 			{
-				System.out.println("exception happened - here's what I know: ");
+				System.out.println("\texception happened - here's what I know: ");
 				e.printStackTrace();
 				System.exit(-1);
 			}
@@ -401,12 +410,12 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 			JOptionPane.showMessageDialog(frame,
 					"Input file: " + results[0] + "\nOutput file: " + results[1]);
 
-			System.out.println("Debug 0");
+			System.out.println("\tDebug 0");
 			EstimateT0correction t0c = new EstimateT0correction(results, fileArray);
 			t0c.DrawPlots();
 			t0c.FitAndDrawT0PlotsForAllCables();
 			t0c.FitAndDrawTMaxPlotsForAllCables();
-			System.out.println("Finished drawing the T0 plots ..");
+			System.out.println("\tFinished drawing the T0 plots ..");
 		}
 	}
 
@@ -418,7 +427,7 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 		fileArray = new ArrayList<String>();
 		for (File file : fileList)
 		{
-			System.out.println("Ready to read file " + file);
+			System.out.println("\tReady to read file " + file);
 			fileArray.add(file.toString());
 		}
 	}
@@ -577,25 +586,23 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 		frame.getContentPane().setLayout(new BorderLayout());
 		frame.getContentPane().add(panelForWelcomeAndOpenFile, BorderLayout.NORTH);
 		frame.getContentPane().add(centerPanel, BorderLayout.CENTER);
-		frame.getContentPane().add(buttonClear, BorderLayout.SOUTH);
+		//frame.getContentPane().add(buttonClear, BorderLayout.SOUTH); // Removed the clear button
 		frame.setVisible(true);
 
 		// addListeners();
 	}
     
-	//------------------------------ flag: Call Time to Distance Fitter -----------------------------------------
+	//------------------------------ Step: Call Time to Distance Fitter -----------------------------------------
 	private void addListeners()
 	{
-		listen();
-
-		System.out.println("isLinearFit = " + isLinearFit);
+		System.out.println("\n\tisLinearFit = " + isLinearFit);
 		if (isLinearFit)
 		{
-			System.out.println("You selected Linear Fit.");
+			System.out.println("\tYou selected Linear Fit.");
 		}
 		else
 		{
-			System.out.println("You selected Non-Linear Fit.");
+			System.out.println("\tYou selected Non-Linear Fit.");
 		}
 		bFileChooser.addActionListener(new ActionListener()
 		{
@@ -608,8 +615,8 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 					chooseFiles(e);
 					if (fileArray.size() == 0)
 					{
-						System.err.println("There are no files selected ");
-						System.exit(1);
+						System.err.println("\tThere are no files selected ");
+						System.exit(1); 
 					}
 
 					TimeToDistanceFitter e3 = new TimeToDistanceFitter(OA, fileArray, isLinearFit);
@@ -621,12 +628,13 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 						new Thread(e3).start();
 					});
 				}
+				else
+					System.out.println("\t Make sure you followed the correct order: Fit type selection > File selections > T2D Fitting");
 			}
 		});
-		// listen();
 	}
 
-	private void listen()
+	private void activateTextArea()
 	{
 		frame.addWindowListener(this);
 		try
@@ -636,11 +644,11 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 		}
 		catch (java.io.IOException io)
 		{
-			textArea.append("Couldn't redirect STDOUT to this console\n" + io.getMessage());
+			textArea.append("\tCouldn't redirect STDOUT to this console\n" + io.getMessage());
 		}
 		catch (SecurityException se)
 		{
-			textArea.append("Couldn't redirect STDOUT to this console\n" + se.getMessage());
+			textArea.append("\tCouldn't redirect STDOUT to this console\n" + se.getMessage());
 		}
 		try
 		{
@@ -649,11 +657,11 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 		}
 		catch (java.io.IOException io)
 		{
-			textArea.append("Couldn't redirect STDERR to this console\n" + io.getMessage());
+			textArea.append("\tCouldn't redirect STDERR to this console\n" + io.getMessage());
 		}
 		catch (SecurityException se)
 		{
-			textArea.append("Couldn't redirect STDERR to this console\n" + se.getMessage());
+			textArea.append("\tCouldn't redirect STDERR to this console\n" + se.getMessage());
 		}
 
 		quit = false; // signals the Threads that they should exit
@@ -675,7 +683,7 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 		fileArray = new ArrayList<String>();
 		for (File file : fileList)
 		{
-			System.out.println("Reading file " + file);
+			System.out.println("\tReading file " + file);
 			fileArray.add(file.toString());
 		}
 	}
@@ -695,7 +703,7 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 		}
 		else
 		{
-			System.err.println("Couldn't find file: " + path);
+			System.err.println("\tCouldn't find file: " + path);
 			return null;
 		}
 	}
@@ -741,11 +749,11 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 
 		if (OA.isorderOk())
 		{
-			System.out.println("I am green and now I should do something here...");
+			System.out.println("\tI am green and now I should do something here...");
 		}
 		else
 		{
-			System.out.println("I am red and it is not my turn now ;( ");
+			System.out.println("\tI am red and it is not my turn now ;( ");
 		}
 
 	}
@@ -828,5 +836,18 @@ public class DC_Calibration extends WindowAdapter implements WindowListener, Act
 		}
 		while (!input.endsWith("\n") && !input.endsWith("\r\n") && !quit);
 		return input;
+	}
+	
+	private void showInstructions()
+	{
+		System.out.println("\n\t==============================================================");
+		System.out.println("\t|\t\tWelcome to DC Calibration Suite for CLAS12\t\t|" );
+		System.out.println("\t==============================================================");
+		System.out.println("\n\tInstructions:");
+		System.out.println("\t1.Please select a radio button & then check button color coding.");
+		System.out.println("\t2.Red: Button is not active - do NOT select");
+		System.out.println("\t3.Blue: Button is active - please select to continue");
+		System.out.println("\t4.Green: Button was active - and action has been performed");
+		System.out.println("\t------------------------------------------------------------------------------------------------------------------------------------------------------------");
 	}
 }

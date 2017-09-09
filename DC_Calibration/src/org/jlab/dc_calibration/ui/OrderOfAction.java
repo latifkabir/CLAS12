@@ -36,8 +36,8 @@ public class OrderOfAction
 				+ "<p> <font color='green'>Green:</font> Button was active - and action has been performed<br><br> "
 				+ "";
 		String pall = pt1 + pt2;
-		JOptionPane.showMessageDialog(frame, pall);
-
+		//JOptionPane.showMessageDialog(frame, pall);  //<-------- This will show instruction window when application is fired
+	    // Disabled this window and moved the instructions to text area which is displayed on startup.
 	}
 
 	// ***********************************************************************
@@ -52,7 +52,7 @@ public class OrderOfAction
 
 			// Set visual appearance of the buttons:
 			buttons[order - 1].setOpaque(true);
-			buttons[order - 1].setContentAreaFilled(true);
+			buttons[order - 1].setContentAreaFilled(false);
 
 			if (order != 1)
 			{
