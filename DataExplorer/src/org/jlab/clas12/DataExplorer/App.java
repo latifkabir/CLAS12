@@ -1,6 +1,8 @@
 
 package org.jlab.clas12.DataExplorer;
 
+import org.jlab.latif.clas12lib.core.ClasStyle;
+
 /**
  * Data Explorer for CLAS12 data
  * @author Latif Kabir < jlab.org/~latif >

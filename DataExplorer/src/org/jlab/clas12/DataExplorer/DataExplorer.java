@@ -2,7 +2,9 @@ package org.jlab.clas12.DataExplorer;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -37,6 +39,10 @@ public class DataExplorer
 
 	private JPanel container;
 
+    JFileChooser fc = new JFileChooser();
+    File[] fileList = null;
+    ArrayList<String> fileArray = new ArrayList<String>();
+	
 	private JTextArea textArea;
 	private PrintStream standardOut;	
 	private Thread explorerThread;
@@ -147,37 +153,41 @@ public class DataExplorer
 		headerLabel.setFont(new Font("Crystal", Font.PLAIN, 24));
 		Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
 		headerLabel.setBorder(border);
-
-		JLabel pathLabel = new JLabel("Path with file prefix: ", JLabel.CENTER);
-		final JTextField pathText = new JTextField(Constants.DATA_DIR,30);
-		JButton setPathButton = new JButton("Set");
-	
-		setPathButton.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				dataDir = pathText.getText().replaceAll("\\s", "");
-				System.out.println("\n Changed the default data path with file prefix to: "+ dataDir);
-			}
-		});
-		
-		pathPanel.add(pathLabel);
-		pathPanel.add(pathText);
-		pathPanel.add(setPathButton);					
 	}
 	
 	// --------- Title and Run selection area --------------------------
 	public void runArea()
 	{				
-		JLabel runLabel = new JLabel("Run #: ", JLabel.CENTER);
-		final JTextField runText = new JTextField(12);
-		JButton enterButton = new JButton("Enter");
+		JButton enterButton = new JButton(" ... Choose file");
 		
 		enterButton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
-			{
-				runNumberStr = runText.getText().replaceAll("\\s", "").replace(":", Constants.FILE_INNER_FIX);
+			{				
+				System.out.println("Select the files .......");
+
+				fc.setMultiSelectionEnabled(true);
+				int result= fc.showOpenDialog(null);
+				
+				if (result == JFileChooser.APPROVE_OPTION) 
+				{
+					
+					fileList = fc.getSelectedFiles();
+					//fileArray = new ArrayList<String>();
+					fileArray.clear();
+					for (File file : fileList)
+					{
+						System.out.println("You have selected: " + file);
+						fileArray.add(file.toString());
+					}										
+					runNumberStr = fileArray.get(0);
+				}
+				else if (result == JFileChooser.CANCEL_OPTION) 
+				{
+				    System.out.println("Cancel was selected");
+				    return;
+				}
+								
 				if(threadIsAlive)
 				{
 					System.out.println("\n !!!! You must wait until current request is finished !!!\n");
@@ -188,25 +198,21 @@ public class DataExplorer
 				{
 					public void run()
 					{
-						run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
+						run = new ClasRecRun(runNumberStr);
 						if (run.runExist())
 						{
-							System.out.println("\n Successfully Loaded run number: " + runNumberStr);
+							System.out.println("\n Successfully Loaded file: " + runNumberStr);
 							System.out.println("\n Total number of entries " + run.getEntries());
 						}
 						else
-							System.out.println("\n The requested run NOT found ");
+							System.out.println("\n The requested run file NOT found ");
 						threadIsAlive = false;
 					}
 				});
 				explorerThread.start();
 			}
 		});
-
-		runPanel.add(runLabel);
-		runPanel.add(runText);
 		runPanel.add(enterButton);
-
 		mainFrame.setVisible(true);
 	}
 
@@ -784,7 +790,7 @@ public class DataExplorer
 					System.out.println("\n !!!! You must wait until current filling  is done !!!\n");
 					return;
 				}
-				run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
+				//run = new ClasRecRun(runNumberStr);
 				if (run.runExist())
 				{
 					threadIsAlive = true;
@@ -832,7 +838,7 @@ public class DataExplorer
 					System.out.println("\n !!!! You must wait until current filling  is done !!!\n");
 					return;
 				}
-				run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
+				//run = new ClasRecRun(runNumberStr);
 				if (run.runExist())
 				{
 					threadIsAlive = true;
@@ -881,7 +887,7 @@ public class DataExplorer
 					return;
 				}
 
-				run = new ClasRecRun(dataDir + runNumberStr + ".hipo");
+				//run = new ClasRecRun(runNumberStr);
 				if (run.runExist())
 				{
 					threadIsAlive = true;
@@ -964,16 +970,13 @@ public class DataExplorer
 				"\t\t-----------------------------------------------------------------------------");
 		System.out.println("\n\n\tGeneral Instructions:");
 		System.out.println("\t----------------------");
-		System.out.println("\n\t1. The default data path is set to kpp pass5 cooked data. Change the path "
-				+ " if you want to explore \n\t   other data. Note, you can include file prefix in the path.");
-		System.out.println("\n\t2. In the run number box enter the remaining part of the file name without file extension."
-				+ "\n\t   An example is 000810_a00013");
-		System.out.println("\n\t3. The bank menu and menu for variables are dynamic. It will get "
+		System.out.println("\n\t1. Select the hipo file you want to explore.");
+		System.out.println("\n\t2. The bank menu and menu for variables are dynamic. It will get "
 				+ "updated based on parent selection.");
-		System.out.println("\n\t4. To select cut, use logical expressions in terms of a,b,c,d."
+		System.out.println("\n\t3. To select cut, use logical expressions in terms of a,b,c,d."
 				+ " An example is a==2 && b==1");
 		System.out.println("\n\t   Report issues or bug to: latif@jlab.org");
-		System.out.println("\n\t -----------------------------------------------------------------------------------");
+		System.out.println("\n\t -----------------------------------------------------------------------------------\n\n");
 	}
 
 	// ----------------- Call to Analysis To Explore----------------
