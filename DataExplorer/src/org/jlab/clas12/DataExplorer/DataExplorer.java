@@ -12,7 +12,7 @@ import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
 import org.jlab.latif.clas12lib.core.Bank;
-import org.jlab.latif.clas12lib.core.ClasRecRun;
+import org.jlab.latif.clas12lib.core.ClasRun;
 import org.jlab.latif.clas12lib.core.DetectorDef;
 
 /**
@@ -48,7 +48,7 @@ public class DataExplorer
 	private Thread explorerThread;
 	private boolean threadIsAlive = false;
 
-	ClasRecRun run = null;
+	ClasRun run = null;
 	String dataDir = Constants.DATA_DIR;
 	String runNumberStr;
 	String clasDetectorName = null;
@@ -198,14 +198,15 @@ public class DataExplorer
 				{
 					public void run()
 					{
-						run = new ClasRecRun(runNumberStr);
+						run = new ClasRun(fileArray);
+						run.setFilePath(fileArray.get(0));
 						if (run.runExist())
 						{
-							System.out.println("\n Successfully Loaded file: " + runNumberStr);
-							System.out.println("\n Total number of entries " + run.getEntries());
+							System.out.println("\n Successfully Loaded the files");
+							//System.out.println("\n Total number of entries " + run.getEntries());
 						}
 						else
-							System.out.println("\n The requested run file NOT found ");
+							System.out.println("\n The requested run files NOT found ");
 						threadIsAlive = false;
 					}
 				});
@@ -790,7 +791,7 @@ public class DataExplorer
 					System.out.println("\n !!!! You must wait until current filling  is done !!!\n");
 					return;
 				}
-				//run = new ClasRecRun(runNumberStr);
+	
 				if (run.runExist())
 				{
 					threadIsAlive = true;
@@ -838,7 +839,7 @@ public class DataExplorer
 					System.out.println("\n !!!! You must wait until current filling  is done !!!\n");
 					return;
 				}
-				//run = new ClasRecRun(runNumberStr);
+
 				if (run.runExist())
 				{
 					threadIsAlive = true;
@@ -887,7 +888,6 @@ public class DataExplorer
 					return;
 				}
 
-				//run = new ClasRecRun(runNumberStr);
 				if (run.runExist())
 				{
 					threadIsAlive = true;

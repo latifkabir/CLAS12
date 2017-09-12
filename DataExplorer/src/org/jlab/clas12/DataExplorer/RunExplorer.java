@@ -6,7 +6,8 @@ import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 
-import org.jlab.latif.clas12lib.core.ClasRecRun;
+import org.jlab.latif.clas12lib.core.ClasRun;
+import org.jlab.latif.clas12lib.core.ClasStyle;
 
 /**
  * Exploring the CLAS run
@@ -17,13 +18,21 @@ import org.jlab.latif.clas12lib.core.ClasRecRun;
 
 public class RunExplorer
 {
+	
+	/**
+	 *  Constructor
+	 */
+	public RunExplorer()
+	{
+		ClasStyle.setStyle();
+	}
 	public void Explorer()
 	{
 
 	}
 
 	public void make1DPlot(
-			ClasRecRun run,  //Run number
+			ClasRun run,  //Run number
 			String detector, // detector name
 			String bank,     // Bank Name
 			String param,    // Variable (item)
@@ -37,7 +46,6 @@ public class RunExplorer
 		frame.setSize(800, 500);
 		H1F histogram;
 		histogram = run.getH1(detector, bank, param, nBins, min, max);
-		histogram.setTitleX(param);
 		canvas.draw(histogram);
 		frame.add(canvas);
 		frame.setLocationRelativeTo(null);
@@ -45,7 +53,7 @@ public class RunExplorer
 	}
 
 	public void make2DPlot(
-			ClasRecRun run,
+			ClasRun run,
 			String detector,
 			String bank,
 			String paramX,
@@ -62,8 +70,6 @@ public class RunExplorer
 		frame.setSize(800, 500);
 		H2F histogram;
 		histogram = run.getH2(detector, bank, paramX, paramY, xnBins, xMin, xMax, ynBins, yMin, yMax);
-		histogram.setTitleX(paramX);
-		histogram.setTitleY(paramY);
 		canvas.draw(histogram);
 		frame.add(canvas);
 		frame.setLocationRelativeTo(null);
@@ -71,7 +77,7 @@ public class RunExplorer
 	}
 
 	public void make1DPlotCut(
-			ClasRecRun run,
+			ClasRun run,
 			String detector,
 			String bank,
 			String param,
@@ -89,7 +95,6 @@ public class RunExplorer
 		frame.setSize(800, 500);
 		H1F histogram;
 		histogram = run.getH1Cut(detector, bank, param, cut1Str, cut2Str, cut3Str, cut4Str, cutStr, nBins, min, max);
-		histogram.setTitleX(param);
 		canvas.draw(histogram);
 		frame.add(canvas);
 		frame.setLocationRelativeTo(null);
@@ -97,7 +102,7 @@ public class RunExplorer
 	}
 
 	public void make2DPlotCut(
-			ClasRecRun run,
+			ClasRun run,
 			String detector,
 			String bank,
 			String paramX,
@@ -120,8 +125,6 @@ public class RunExplorer
 		H2F histogram;
 		histogram = run.getH2Cut(detector, bank, paramX, paramY, cut1Str, cut2Str, cut3Str, cut4Str, cutStr, xnBins,
 				xMin, xMax, ynBins, yMin, yMax);
-		histogram.setTitleX(paramX);
-		histogram.setTitleY(paramY);
 		canvas.draw(histogram);
 		frame.add(canvas);
 		frame.setLocationRelativeTo(null);

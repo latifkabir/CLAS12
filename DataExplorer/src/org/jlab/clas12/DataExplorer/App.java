@@ -17,6 +17,7 @@ public class App
 	// ------------ The main function -------------------
 	public static void main(String[] args)
 	{
+		ClasStyle.setStyle();
 		DataExplorer explorer = new DataExplorer();
 		explorer.pathArea();
 		explorer.runArea();
