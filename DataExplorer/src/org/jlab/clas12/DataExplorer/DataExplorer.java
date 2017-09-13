@@ -158,7 +158,7 @@ public class DataExplorer
 	// --------- Title and Run selection area --------------------------
 	public void runArea()
 	{				
-		JButton enterButton = new JButton(" ... Choose file");
+		JButton enterButton = new JButton(" ... Choose files");
 		
 		enterButton.addActionListener(new ActionListener()
 		{
@@ -202,7 +202,7 @@ public class DataExplorer
 						run.setFilePath(fileArray.get(0));
 						if (run.runExist())
 						{
-							System.out.println("\n Successfully Loaded the files");
+							System.out.println("\n Successfully Loaded files.");
 							//System.out.println("\n Total number of entries " + run.getEntries());
 						}
 						else
