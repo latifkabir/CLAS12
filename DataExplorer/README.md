@@ -31,17 +31,15 @@ Compilation Instructions
 1. Download/clone the ```DataExplorer package```
 2. From your IDE(Eclipse) export the package as new project.
 3. Add jar for ```clas12lib``` to your build path.
-4. Modify the file ```src/*/Constants.java``` to set correct default data path for your system.
-5. From IDE(Eclipse) export to runnable jar
+4. From IDE(Eclipse) export to runnable jar
 
 How to use
 ----------
-
+It should be trivial to use.
 Check the presentation [here](https://userweb.jlab.org/~latif/Hall_B/DC_Update_CalCom_meeting_July14_2017.pdf)
 
 **Note:**
-- In the run number field, the systax is ```RunNumber:FileNumber```
-- In the cut expression box, you must enter a logical expression. 
+- In the cut expression box, you must enter a logical expression in terms of a, b, c or d. 
 
 
 **Screenshot**
@@ -51,10 +49,6 @@ Check the presentation [here](https://userweb.jlab.org/~latif/Hall_B/DC_Update_C
 To be done for upcoming updates
 -------------------------------
 
-1. Replace file path by file chooser utility.
-2. Allow selection of more than one file. Use run number box for specific file number of selected files.
-3. Remove redundant enter or set button with auto set upon selection.
-4. Add custom style for plots, title, stats, axis. Show stat box.
-5. Fix cut option for float values.
-6. Use JavaFx instead of Swing for GUI implementation.
-7. Add button for XY profile histogram.
+1. Remove redundant enter or set button with auto set upon selection.
+2. Use JavaFx instead of Swing for GUI implementation.
+3. Add button for XY profile histogram.
