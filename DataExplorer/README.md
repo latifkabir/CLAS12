@@ -11,6 +11,17 @@ Features
  - Apply cut using up to four variables.
 
 
+Download the executable
+-----------------------
+A pre-compiled executable ```jar``` file is inside the directory ```target/```. Download that ```jar``` file on your computer and run the program as:
+
+```
+java -jar /path/to/DataExplorer_v3.0.jar
+```
+
+It should just work.
+
+
 Running on JLAB ifarm
 ---------------------
 You can run the pre-compiled compiled jar from ```ifram``` by issuing the following command (assuming you ssh with -Y option):
@@ -28,9 +39,11 @@ The required jar file is stored inside the ```Clas12lib/lib/``` directory. You n
 Compilation Instructions
 ------------------------
 
-1. Download/clone the ```DataExplorer package```
-2. From your IDE(Eclipse) export the package as new project.
-3. Add jar for ```clas12lib``` to your build path.
+If you want to compile on your computer, then do:
+
+1. Download/clone the entire ```CLAS12 Software package```
+2. From your IDE(Eclipse) export the Data Explorer package as new project.
+3. Add jar for ```clas12lib/``` to your build path.
 4. From IDE(Eclipse) export to runnable jar
 
 How to use
