@@ -1,6 +1,7 @@
 
 package org.jlab.clas12.DataExplorer;
 
+
 import org.jlab.latif.clas12lib.core.ClasStyle;
 
 /**
@@ -16,7 +17,8 @@ public class App
 	 */
 	// ------------ The main function -------------------
 	public static void main(String[] args)
-	{
+	{		
+		ExplorerLook.SetLook();		
 		ClasStyle.setStyle();
 		DataExplorer explorer = new DataExplorer();
 		explorer.pathArea();
