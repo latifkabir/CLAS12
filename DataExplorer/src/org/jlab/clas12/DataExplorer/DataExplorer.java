@@ -11,9 +11,8 @@ import javax.swing.*;
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
-import org.jlab.latif.clas12lib.core.Bank;
-import org.jlab.latif.clas12lib.core.ClasRun;
-import org.jlab.latif.clas12lib.core.DetectorDef;
+import org.jlab.latif.clas12lib.bankdef.*;
+import org.jlab.latif.clas12lib.core.*;
 
 /**
  * 
@@ -39,7 +38,7 @@ public class DataExplorer
 
 	private JPanel container;
 
-    JFileChooser fc = new JFileChooser();
+    JFileChooser file_chooser = new JFileChooser();
     File[] fileList = null;
     ArrayList<String> fileArray = new ArrayList<String>();
 	
@@ -146,11 +145,18 @@ public class DataExplorer
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
 	}
 
-	//---------------------- Title and path area ----------------------------
-	public void pathArea()
+	//---------------------- Title area ----------------------------
+	public void titleArea()
 	{
-		headerLabel.setText("       CLAS Data Explorer       ");
-		headerLabel.setFont(new Font("Crystal", Font.PLAIN, 24));
+		//headerLabel.setText("       CLAS Data Explorer       ");
+		headerLabel.setText("  CLAS Data Explorer  ");
+        Font fancyFont = new Font("Serif", Font.BOLD | Font.ITALIC, 26);
+        headerLabel.setFont(fancyFont);
+        headerLabel.setHorizontalAlignment(JLabel.CENTER);
+               
+        //Icon clasIcon = new ImageIcon("res/clas.jpg");
+        //headerLabel.setIcon(clasIcon);
+        
 		Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
 		headerLabel.setBorder(border);
 	}
@@ -166,13 +172,13 @@ public class DataExplorer
 			{				
 				System.out.println("Select the files .......");
 
-				fc.setMultiSelectionEnabled(true);
-				int result= fc.showOpenDialog(null);
+				file_chooser.setMultiSelectionEnabled(true);
+				int result= file_chooser.showOpenDialog(null);
 				
 				if (result == JFileChooser.APPROVE_OPTION) 
 				{
 					
-					fileList = fc.getSelectedFiles();
+					fileList = file_chooser.getSelectedFiles();
 					//fileArray = new ArrayList<String>();
 					fileArray.clear();
 					for (File file : fileList)

@@ -21,7 +21,7 @@ public class App
 		ExplorerLook.SetLook();		
 		ClasStyle.setStyle();
 		DataExplorer explorer = new DataExplorer();
-		explorer.pathArea();
+		explorer.titleArea();
 		explorer.runArea();
 		explorer.eventArea();
 		explorer.detectorSelArea();
