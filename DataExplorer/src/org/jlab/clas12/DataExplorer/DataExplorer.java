@@ -7,8 +7,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 import javax.swing.*;
-
-import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
 import org.jlab.latif.clas12lib.bankdef.*;
@@ -24,7 +22,7 @@ public class DataExplorer
 {
 	private JFrame mainFrame;
 	private JLabel headerLabel;
-	private JLabel statusLabel;
+	private JLabel blankLabel;
 	private JPanel controlPanel;
 	private JPanel detControlPanel;
 	private JPanel xcontrolPanel;
@@ -87,14 +85,27 @@ public class DataExplorer
 		prepareGUI();
 	}
 
-	// ------------- Initialize required objects for
-	// GUI-------------------------------
+	// ------------- Initialize required objects for GUI-------------------------------
 	public void prepareGUI()
 	{
 		// -------------------- The main frame -------------------------------
-		mainFrame = new JFrame("CLAS Data Explorer");
-		mainFrame.setSize(800, 700);
-		mainFrame.setLayout(new GridLayout(0, 1));
+		mainFrame = new JFrame("CLAS Data Explorer");		
+		mainFrame.setLayout(new BorderLayout());
+									
+		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		int width = gd.getDisplayMode().getWidth();
+		int height = gd.getDisplayMode().getHeight();
+		Dimension frameSize = new Dimension((int) (width / 1.7), (int) (height / 1.10));		
+		int x = (int) (frameSize.width / 2);
+		int y = (int) (frameSize.height / 2);
+		mainFrame.setBounds(x, y, frameSize.width, frameSize.height);
+		mainFrame.pack();
+		mainFrame.setSize(frameSize.width, frameSize.height);
+		mainFrame.setLocationRelativeTo(null);
+		mainFrame.setVisible(true);
+									
+		//mainFrame.setSize(800, 700);
+		//mainFrame.setLayout(new GridLayout(0, 1));
 
 		mainFrame.addWindowListener(new WindowAdapter()
 		{
@@ -104,12 +115,10 @@ public class DataExplorer
 			}
 		});
 
-		// ----------------- Header Label properties
-		// ------------------------------
+		// ----------------- Header Label properties ------------------------------
+		blankLabel = new JLabel("                        ", JLabel.CENTER);
 		headerLabel = new JLabel("", JLabel.CENTER);
-		statusLabel = new JLabel("", JLabel.CENTER);
-		statusLabel.setSize(350, 100);
-
+		
 		// ---------------- The Panel (drop/down menu)-----------------------
 		pathPanel = new JPanel();
 		pathPanel.setLayout(new FlowLayout());
@@ -148,11 +157,11 @@ public class DataExplorer
 	//---------------------- Title area ----------------------------
 	public void titleArea()
 	{
-		//headerLabel.setText("       CLAS Data Explorer       ");
-		headerLabel.setText("  CLAS Data Explorer  ");
+		headerLabel.setText("             CLAS Data Explorer             ");
         Font fancyFont = new Font("Serif", Font.BOLD | Font.ITALIC, 26);
         headerLabel.setFont(fancyFont);
         headerLabel.setHorizontalAlignment(JLabel.CENTER);
+		headerLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
                
         //Icon clasIcon = new ImageIcon("res/clas.jpg");
         //headerLabel.setIcon(clasIcon);
@@ -235,7 +244,6 @@ public class DataExplorer
 			public void actionPerformed(ActionEvent e)
 			{
 				String data = "Event: " + eventText.getText().replaceAll("\\s", "");
-				// statusLabel.setText("Selected " + data);
 				try
 				{
 					int num1 = Integer.parseInt(eventText.getText().replaceAll("\\s", ""));
@@ -950,6 +958,7 @@ public class DataExplorer
 		constraints.weighty = 1.0;
 
 		// ------------------ Add all the button/box/text area components to the frame------------
+		container.add(blankLabel);
 		container.add(headerLabel);
 		container.add(pathPanel);
 		container.add(runPanel);
@@ -961,7 +970,6 @@ public class DataExplorer
 		container.add(cutPanel);
 		container.add(cutExpPanel);
 		container.add(plotPanel);
-		container.add(statusLabel);
 		container.add(textArea);
 		container.add(new JScrollPane(textArea), constraints);
 

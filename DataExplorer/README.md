@@ -43,8 +43,8 @@ If you want to compile on your computer, then do:
 
 1. Download/clone the entire ```CLAS12 Software package```
 2. From your IDE(Eclipse) export the Data Explorer package as new project.
-3. Add jar for ```clas12lib/``` to your build path.
-4. From IDE(Eclipse) export to runnable jar
+3. Add jar from ```clas12lib/``` to your build path.
+4. From your IDE (e.g. Eclipse) export to runnable jar
 
 How to use
 ----------
